@@ -1,0 +1,1826 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2014 by Fabian Lipp <fabian.lipp@gmx.de>
+% based on the todonotes package
+%   by Henrik Skov Midtiby <henrikmidtiby@gmail.com>
+% -------------------------------------------------------
+% 
+% This file may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.2
+% of this license or (at your option) any later version.
+% The latest version of this license is in:
+%
+%    http://www.latex-project.org/lppl.txt
+%
+% and version 1.2 or later is part of all distributions of LaTeX 
+% version 1999/12/01 or later.
+%
+% \fi
+%
+% \iffalse
+%<*driver>
+\ProvidesFile{luatodonotes.dtx}
+%</driver>
+%<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+%<package>\ProvidesPackage{luatodonotes}
+%<*package>
+    [2014/08/07 v0.1 luatodonotes source and documentation.]
+%</package>
+%
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage{wrapfig}
+\usepackage[colorlinks, linkcolor=black, urlcolor=blue]{hyperref}
+\usepackage[colorinlistoftodos, shadow]{luatodonotes}[2014/06/08]
+\usepackage{fontspec}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage{soul}
+\setcounter{tocdepth}{2}
+\EnableCrossrefs         
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{luatodonotes.dtx}
+%\iffalse
+%  \PrintChanges
+%  \PrintIndex
+%\fi
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{841}
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+%
+% \changes{0.1}{2014/08/07}{The first version of the package}
+% \changes{0.2}{2014/09/08}{Compatibility with csquotes package (notes were
+% displayed multiple times when used in \texttt{\textbackslash blockquote}
+% command)}
+% \GetFileInfo{luatodonotes.dtx}   
+%
+% \DoNotIndex{\newcommand,\newenvironment}
+%
+% \iffalse
+% A macro for marking things todo before the next relase
+% (typically update of documentation).
+% \fi
+% \newcommand{\donow}[1]{\todo[color=blue]{#1}}
+% 
+%
+% \title{The \textsf{luatodonotes} package\thanks{This document
+%   corresponds to \textsf{luatodonotes}~\fileversion, dated \filedate.}}
+% \author{Fabian Lipp\thanks{This documentation and the whole package is based
+% on version 1.0.2 of the todonotes package by Henrik Skov Midtiby.} \\
+% \texttt{fabian.lipp@gmx.de}}
+%
+% \maketitle
+%
+% \begin{abstract}
+% The |luatodonotes| package allows you to insert to--do items in your
+% document. At any point in the document a list of all the inserted
+% to--do items can be listed with the |\listoftodos| command.
+%
+% It is an extended version of the |todonotes| package and uses more advanced
+% algorithms to place the to--do notes notes on the page.
+% For this algorithms it depends on Lua\TeX.
+% \end{abstract}
+%
+% \tableofcontents
+%
+% \newpage
+% \section{Introduction}
+%
+% The |luatodonotes| package makes three commands available to the
+% user: |\todo[]{}|, |\missingfigure{}| and |\listoftodos|.
+% |\todo[]{}| and |\missingfigure{}| makes it possible to insert
+% notes in your document about things that has to be done later
+% (todonotes \ldots).
+% This package is based on version 1.0.2 of
+% |todonotes|\footnote{\url{http://www.ctan.org/pkg/todonotes}} by Henrik Skov
+% Midtiby.
+%
+% The positions of the notes on the page is determined using algorithms
+% implemented in Lua, so you have to process your documents using Lua\LaTeX.
+% The package can be used as a drop-in replacement for the original
+% |todonotes| package, you
+% only need to modify |\usepackage{todonotes}| to |\usepackage{luatodonotes}|.
+% Note that |todonotes| and |luatodonotes| must not be loaded inside the same
+% document.
+% 
+% Some alternatives for the luatodonotes package are:
+% \begin{itemize}
+% \item \href{http://www.ctan.org/tex-archive/macros/latex/contrib/easy-todo}{easy-todo}\\
+% Depends on |color|, |tocloft| and |ifthen|, small feature set.
+% \item \href{http://www.ctan.org/pkg/fixmetodonotes}{fixmetodonotes}\\
+% Depends on |graphicx|, |color|, |transparent|, |watermark|, |fix-cm|, |ulem| and |tocloft|, small feature set.
+% \item \href{http://www.ctan.org/tex-archive/macros/latex/contrib/todo}{todo}\\
+% Depends on |amssymb|, medium feature set.
+% \item \href{http://www.ctan.org/tex-archive/macros/latex/contrib/fixme}{fixme}\\
+% Large package with a lot of features.
+% \item \href{http://www.ctan.org/pkg/todonotes}{todonotes}
+% \end{itemize}
+%
+% Compared to the classical todonotes this package has more advanced algorithms
+% and more configuration options to control the position of the notes on the
+% page.
+% Additionally, we are able to place notes at almost every position on the
+% page, e.\,g., in floating environments or in footnotes.
+% As a disadvantage luatodonotes requires Lua\LaTeX for document processing, so
+% a standard |pdflatex| won't work.
+% Depending on the chosen layout for the to--do notes the runtime can be much
+% higher than with todonotes.
+% Labels placed by luatodonotes can conflict with text placed with
+% |\marginpar|.
+%
+% The main reason for considering other packages is that the todonotes 
+% package is quire large and relies heavily on tikz.
+% This can slow down compilation of large documents significantly.
+% The mentioned alternatives have a different feature set and does not 
+% rely on tikz, which makes them require less ressoureces.
+%
+%
+% \subsection{Usage}
+% The package is loaded with |\usepackage|\oarg{options}|{luatodonotes}|.
+% Valid options are described in Section~\ref{subsecPackageOptions}.
+% Note that |todonotes| must \emph{not} be loaded.
+% You have to use |lualatex| to process your document, |pdflatex| will not
+% work.
+% The package depends on positions written to the aux-file, so you have to run
+% |lualatex| twice or even three times to get the labels and leaders for the
+% notes right.
+%
+% \DescribeMacro{\todo}
+% My \index{\todo}most common usage of the todonotes package, is to 
+% insert an todonotes somewhere in a latex document. 
+% An example of this usage is the command 
+%
+% |\todo{Make a cake \ldots}|, 
+% 
+% \noindent
+% which renders like\todo{Make a cake \ldots}.
+% The |\todo| command has this structure: 
+% |\todo|\oarg{options}\marg{todo text}.
+% The |todo text| is the text that will be shown in the todonote and
+% in the list of todos. The optional argument |options|, allows the
+% user to customize the appearance of the inserted todonotes.
+% For a description of all the options see section
+% \ref{subsecTodoOptions}.
+%
+% \DescribeMacro{\todoarea}
+% The |\todoarea| is similiar to |\todo|, but is able to highlight a specified
+% area in the text, to which the note is connected.
+% The command has this structure:
+% |\todoarea|\oarg{options}\marg{note text}\marg{highlighted text}.
+% This command was not tested extensively until now, so it should be used with
+% caution.
+%
+% \DescribeMacro{\missingfigure}
+% The |\missingfigure| command inserts an image containing an 
+% attention sign and the given text.
+% The command takes only one argument
+% |\missingfigure|\marg{text}, a text string that could
+% describe what the figure should consist of.
+% An example of its usage could be 
+%
+% |\missingfigure{Make a sketch of the structure of a trebuchet.}| 
+%
+% \noindent
+% which renders like.
+%
+% \missingfigure{Make a sketch of the structure of a trebuchet.}
+%
+%
+% \DescribeMacro{\listoftodos}
+% The |\listoftodos| command inserts a list of all the todos in the
+% current document. |\listoftodos| takes no arguments.
+% For this document the list of to--do's looks like.
+% \listoftodos
+% \vspace{0.5cm}
+%
+% \DescribeMacro{\todototoc}
+% The |\todototoc| command adds an entry to the table of contents for 
+% list of todos. The command should be placed right before the 
+% |\listoftodos| command.
+%
+% \subsection{Package options}
+% \label{subsecPackageOptions}
+% \DescribeMacro{disable}
+% If the option |disable| is passed to the package, the macros
+% usually defined by the package (|\todo|, |\todoarea|, |\listoftodos| and
+% |\missingfigure|) are defined as macros with no effect, and thus
+% all inserted notes are removed.
+%
+% \DescribeMacro{obeyDraft, obeyFinal}
+% When the option |obeyDraft| is given, the package checks
+% if the one of the options |draft|, |draftcls| or |draftclsnofoot| 
+% is given (this option is usually given to
+% the documentclass). If the |draft| option is given, the
+% functionality of the package is enabled and otherwise the effect
+% of the package is disabled.
+% The option |obeyFinal| does something similar, except that the 
+% todonotes package is only disabled if the |final| option given.
+%
+% \DescribeMacro{danish, german, ngerman, french, swedish}
+% \DescribeMacro{spanish, catalan, italian}
+% \DescribeMacro{portuguese, dutch}
+% Use translations of the text strings 
+% ''List of todos'' and ''Missing figure''.
+% The default is to use none of these options, which results in
+% english text strings.
+% Currently the following languages are supported: 
+% catalan,
+% danish,
+% dutch,
+% french,
+% german,
+% ngerman,
+% italian,
+% portuguese,
+% spanish and
+% swedish.
+% 
+% \DescribeMacro{colorinlistoftodos}
+% Adds a small colored square in front of all items in the Todo
+% list. The color of the square is the same as the fill color of the
+% inserted todonote.
+% This can be useful if there are different types of todos 
+% (insert reference, explain in detail, \ldots) where the color of
+% the inserted todonote marks the type of todo.
+%
+% \DescribeMacro{color}
+% \DescribeMacro{backgroundcolor}
+% \DescribeMacro{linecolor}
+% \DescribeMacro{bordercolor}
+% These options sets the default colors for the todo command.
+% There is three colors that can be specified. The border color
+% (default |bordercolor=black|) around the inserted text, the color
+% behind the inserted text (default |backgroundcolor=orange|) and
+% the color of the line connecting the inserted textbox with the
+% current location in the text (default |linecolor=black!30|). 
+% Setting the |color| option to |val| passes this value on to the 
+% background and line color options.
+% The specified colors must be valid according to the 
+% |xcolor| package.
+%
+% \DescribeMacro{textsize}
+% |textsize=value| sets the default text size of the inserted
+% todonotes to the given value.
+% Value is the ''name'' of the used font size, eg. if the desired
+% fontsize is |\tiny| use |textsize=tiny|. The default value is 
+% |textsize=normalsize|.
+%
+% \DescribeMacro{prependcaption}
+% The |prependcaption| option triggers a special behaviour of the
+% |caption=val| option for the todo command, where the given value
+% |val| is inserted in the inserted todonote.
+% 
+% \DescribeMacro{shadow}
+% If the |shadow| option is given, the inserted todonotes will be
+% displayed with a gray shadow.
+% I expect that the option will trigger problems with tikz versions
+% prior to 2.0.
+%
+% \DescribeMacro{figwidth}
+% \DescribeMacro{figheight}
+% The |figwidth=length| option and |figheight=length| option set the default
+% width and height of the figure
+% inserted by the |\missingfigure| command. 
+% The default value is |\columnwidth| for the width and |4cm| for the height.
+%
+% \DescribeMacro{leaderwidth}
+% The |leaderwidth=length| option specifies the width of the leader lines.
+% The argument is passed to the |line width| option in TikZ.
+% The default value is |1.6pt|.
+%
+% \DescribeMacro{leadertype}
+% The |leadertype=type| option specifies the shape of the leaders, which are
+% drawn between the labels in the margin and the corresponding sites in text.
+% We use the characterization of the leader types known from boundary labeling:
+% $p$ denotes a segment parallel to the left/right side of the text area, while
+% $o$ denotes a orthogonal segment.
+% $s$ is a straight-line segment.
+% The following types are available (|opo| is the default value):
+% \begin{itemize}
+%    \item |s|:
+%    Straight-line connection between site and label.
+%    \item |sBezier|:
+%    Uses the straight-line leaders but transforms them into B\'ezier curves,
+%    which are easier to follow for the reader.
+%    The generated curves don't cross each other when the straight-line leaders
+%    are crossing-free.
+%    \item |opo|:
+%    This is the style used in the original todonotes package.
+%    The leaders start with a horizontal segment at the site in the text,
+%    followed by a vertical segment in the margin beneath the text.
+%    The last segment is a vertical segment, which connects to the label.
+%    \item |os|:
+%    This is the style used in common word processing applications like
+%    LibreOffice.
+%    The leader also starts with a horizontal segment that leads to the margin
+%    and is connected to the label by a straight line.
+%    \item |po|:
+%    The leader starts with a vertical segment at the site in text and is then
+%    connected to the label by a horizontal segment.
+% \end{itemize}
+%
+% \DescribeMacro{positioning}
+% The |positioning=algorithm| option specifies, which algorithm is used to
+% determine the positions of the notes on the page.
+% You should choose the algorithm depending on the leader type you want to use.
+% The default value for this option is |inputOrderStacks|.
+% The following algorithms are available:
+% \begin{itemize}
+%    \item |inputOrder|:
+%    Place the labels in the order given by the
+%    y-coordinates of the corresponding sites in text.
+%    Intended for use with $opo$- or $os$-leaders.
+%    \item |inputOrderStacks|:
+%    Like the algorithm before, but the labels are
+%    clustered before they are placed.
+%    Thus the labels are placed nearer to their sites.
+%    Intended for use with $opo$- or $os$-leaders.
+%    \item |sLeaderNorthEast|:
+%    Places labels in a way that they can be connected to their sites by
+%    straight-line leaders without crossings.
+%    The leaders are attached to the upper right or upper left corner of the
+%    label (depending on which site of the text the label is placed).
+%    Intended for use with $s$-leaders or B\'ezier leaders.
+%    \item |sLeaderNorthEastBelow|:
+%    Like the algorithm before, but the leader is attached to a point that is a
+%    constant offset below the corner of the label.
+%    Intended for use with $s$-leaders or B\'ezier leaders.
+%    \item |sLeaderNorthEastBelowStacks|:
+%    Like the algorithm before, but the labels are cluster before they are
+%    placed.
+%    Thus the labels are placed nearer to their sites.
+%    Intended for use with $s$-leaders or B\'ezier leaders.
+%    \item |sLeaderEast|:
+%    Like the algorithms before, but the leader is attached to the center of the
+%    right or left boundary of the label.
+%    Intended for use with $s$-leaders or B\'ezier leaders.
+%    \item |poLeaders|:
+%    Calculates label positions that lead to $po$-leaders with minimum total
+%    length.
+%    This algorithm depends heavily on the number of notes, so the runtime and
+%    memory consumption can get very high.
+%    \item |poLeadersAvoidLines|:
+%    Like the algorithm before, but tries to avoid overlapping of horizontal
+%    leader segments with text.
+%    This algorithm depends heavily on advanced Lua\TeX\ features to manipulate
+%    the data structures of the page, so it possibly could give conflicts with
+%    other packages.
+% \end{itemize}
+%
+% \DescribeMacro{splitting}
+% The |splitting=algorithm| option can be used to place the labels on both sides
+% of the text.
+% The notes are only separated when there is enough space on both sides (see
+% |minNoteWidth|.
+% The default value for this option is |none|.
+% Available algorithms for this option are:
+% \begin{itemize}
+%    \item |none|:
+%    Labels are placed in the wider margin only.
+%    \item |middle|:
+%    The text area is split in the middle in a left and a right half.
+%    Labels, whose sites are in the left half of the text, are placed in the
+%    left margin, the others in the right margin.
+%    \item |median|:
+%    The notes are seperated at the median of the sites (sorted by
+%    x-coordinate).
+%    That is, the number of notes in the left and the right margin is equal
+%    (except for one note).
+%    \item |weightedMedian|:
+%    Considers the height of the labels for the median.
+%    So the total height of the labels in the left margin is approximately equal
+%    to that in the right margin.
+% \end{itemize}
+%
+% \DescribeMacro{interNoteSpace}
+% The |interNoteSpace=length| option specifies the minimum vertical distance
+% between two notes.
+% The default value is |5pt|.
+%
+% \DescribeMacro{noteInnerSep}
+% The |noteInnerSep=length| option specifies the |inner sep| used for the TikZ
+% nodes, i.\,e., the distance between the border of the note and the text inside
+% it.
+% The default value is |5pt|.
+%
+% \DescribeMacro{routingAreaWidth}
+% The |routingAreaWidth=length| option specifies the width of the so called
+% routing area.
+% This is the area, in which the vertical segment of $opo$-leaders are placed.
+% The area is also used for $os$-leaders.
+% The default value is |0.4cm|.
+%
+% \DescribeMacro{minNoteWidth}
+% The |minNoteWidth=length| option specifies the minimum width of the labels.
+% When there is fewer space in one of the margins, this margin is not considered
+% for label placement.
+% If both margins are narrower, no labels are placed and an error message is
+% printed to the console output.
+% The default value of this option is |2.0cm|.
+%
+% \DescribeMacro{distanceNotesPageBorder}
+% The |distanceNotesPageBorder=length| option specifies the horizontal distance
+% from the labels to the borders of the paper.
+% You can adjust this setting to your printer margins.
+% The default value of this option is |0.5cm|.
+%
+% \DescribeMacro{distanceNotesText}
+% The |distanceNotesPageBorder=length| option specifies the horizontal distance
+% between the labels and the text area.
+% With $opo$- or $os$-leaders the routing area is inserted additionally so the
+% distance between labels and text area increases.
+% The default value of this option is |0.2cm|.
+%
+% \DescribeMacro{rasterHeight}
+% The |rasterHeight=length| option is used only for the $po$-leader algorithm.
+% For this algorithm the page is rasterized and the labels are placed only on
+% the positions given by this raster.
+% Decreasing this value can yield better results (i.\,e., smaller total leader
+% length), but strongly increases the runtime and memory consumption.
+% The default value of this option is |1cm|.
+%
+% \DescribeMacro{debug}
+% When the |debug| option is activated the package is more verbose on
+% the commandline.
+% Additionally, some markers, which can be used to understand the algorithms,
+% are drawn on the page (depending on the chosen algorithm).
+%
+%
+%
+%
+% \subsection{Options for the todo command}
+% \label{subsecTodoOptions}
+% There are several options that can be given to the |\todo|
+% command. All the options are described here and often I have
+% included examples of the change in visual appearance.
+% Default values for these options can be set using the presetkeys 
+% command.
+% \begin{verbatim}
+% \presetkeys{todonotes}{fancyline, color=blue!30}{}
+% \end{verbatim}
+%
+% \DescribeMacro{disable}
+% The |disable| option can be given directly to the todo command.
+% If given the command has no effect.
+%
+% \DescribeMacro{color}
+% \DescribeMacro{backgroundcolor}
+% \DescribeMacro{linecolor}
+% \DescribeMacro{bordercolor}
+% These options set the color that is used in the current todo
+% command.
+% The color classes is the same as used in the color package
+% options, see section \ref{subsecPackageOptions}.
+% Default values can be set by the color
+% options when the todonotes package is loaded.
+% \todo[color=green!40]{And a green note}
+% The todo notes inserted in this paragraph is created with the
+% command
+% |\todo[color=green!40]{And a green note}|.
+% The color of the inserted note could be used to mark different
+% types of tasks (insert references, explain something in detail,
+% \ldots), this could be streamlined by defining new commands like
+% below.
+% \begin{verbatim}
+% \newcommand{\insertref}[1]{\todo[color=green!40]{#1}}
+% \newcommand{\explainindetail}[1]{\todo[color=red!40]{#1}}
+% \end{verbatim}
+% An example that uses all of the color options is given below
+% \todo[linecolor=green!70!white, backgroundcolor=blue!20!white,
+% bordercolor=red]{Anything but default colors}.
+% \begin{verbatim}
+% \todo[linecolor=green!70!white, backgroundcolor=blue!20!white,
+% bordercolor=red]{Anything but default colors}.
+% \end{verbatim}
+%
+%
+% \DescribeMacro{line / noline}
+% If you want to get rid of the line connecting the inserted note
+% with the place in the text where the note occurs in the latex
+% code, the option |noline| can be used.
+% \todo[noline]{A note with no line connecting it to the placement
+% in the original text.}
+% |\todo[noline]{A note with no line ...}|
+% \vspace{1.0cm}
+% 
+%
+% \DescribeMacro{inline / noinline}
+% It is possible to place a todonote inside the text instead of
+% placing it in the margin, this could be desirable if the text in
+% the note has a considerable length.
+% |\todo[inline]{A todonote placed in the text}|
+% \todo[inline]{A todonote placed in the text}
+
+% \begin{wrapfigure}[1]{r}[20mm]{40mm}
+% \begin{tikzpicture}
+% \draw[red] (0, 0) circle(0.45);
+% \draw[green] (1, 0) circle(0.45);
+% \draw[blue] (2, 0) circle(0.45);
+% \end{tikzpicture}
+% \caption{A text explaining the image.
+% \todo[inline]{Fill those circles \ldots}}
+% \end{wrapfigure}
+% Another usage for the inline option is when you want to add a
+% todonote to a figure caption.
+%
+% \begin{verbatim}
+% \begin{wrapfigure}{r}[20mm]{40mm}
+% \begin{tikzpicture}
+% \draw[red] (0, 0) circle(0.45);
+% \draw[green] (1, 0) circle(0.45);
+% \draw[blue] (2, 0) circle(0.45);
+% \end{tikzpicture}
+% \caption{A text explaining the image.
+% \todo[inline]{Fill those circles \ldots}}
+% \end{wrapfigure}
+% \end{verbatim}
+%
+% \DescribeMacro{size}
+% |size=val| changes the size of the text inside the todonote.
+% The commands used to create the notes below are \\ \noindent
+% |\todo[size=\Large]{A note with a large font size.}|
+% and \\ \noindent
+% |\todo[inline, size=\tiny]{Note with very small font size.}|.
+% \todo[size=\Large]{A note with a large font size.}
+% \todo[inline, size=\footnotesize]{Note with very small font size.}
+%
+% \DescribeMacro{list / nolist}
+% When the option |nolist| is given, the todo item will not appear in
+% the list of todos.
+%
+% \DescribeMacro{caption}
+% The |caption| option enables the user to specify a short
+% description of the todonote that are inserted in the list of
+% todos instead of the full todonote text.
+% \todo[caption={Short note}]{A very long and tedious note that
+% cannot be on one line in the list of todos.}
+% \begin{verbatim}
+% \todo[caption={Short note}]{A very long and tedious note that
+% cannot be on one line in the list of todos.}.
+% \end{verbatim}
+% The effect of this option is altered with the package option
+% |prependcaption| or the |prepend| / |noprepend| option for the
+% todo command.
+%
+% \DescribeMacro{prepend / noprepend}
+% The options |prepend| and |noprepend| can be used for setting
+% whether a given caption should be prepended to the todonote or
+% not.
+% Globally this can be set using the |prependcaption| option for the
+% package.~\todo[prepend, caption={Short note with prepend}]{A very
+% long and tedious note that cannot be on one line in the list of
+% todos.} Below is the effect of the option shown using the code:
+% \todo[noprepend, caption={Short note with noprepend}]{A very long
+% and tedious note that cannot be on one line in the list of
+% todos.}
+% \begin{verbatim}
+% \todo[prepend, caption={Short note with prepend}]{A very long and tedious 
+% note that cannot be on one line in the list of todos.}.
+% \todo[noprepend, caption={Short note with noprepend}]{A very long and 
+% tedious note that cannot be on one line in the list of todos.}.
+% \end{verbatim}
+%
+% \DescribeMacro{author}
+% The |author| option takes a parameter, the name of the author.
+% The given name is inserted in the todonote.
+% \todo[author=Xavier]{Testing author option.}
+% \todo[author=Xavier, inline]{Testing author option.}
+% \begin{verbatim}
+% \todo[author=Xavier]{Testing author option.}
+% \todo[author=Xavier, inline]{Testing author option.}
+% \end{verbatim}
+%
+% \subsection{Options for the missingfigure command}
+%
+% \DescribeMacro{figwidth}
+% The |figwidth=length| option sets the width of the figure inserted by the
+% |\missingfigure| command.
+% Length values below $6cm$ might trigger some problems with the
+% visual appearance.
+% Try to compare the default of the missing figure command, when the
+% option is given or not. 
+% \begin{verbatim}
+% \missingfigure[figwidth=6cm]{Testing a long text string}
+% \end{verbatim}
+% \missingfigure[figwidth=6cm]{Testing a long text string}
+% \begin{verbatim}
+% \missingfigure{Testing a long text string}
+% \end{verbatim}
+% \missingfigure{Testing a long text string}
+% \begin{wrapfigure}{r}[2cm]{6cm}
+% \missingfigure[figwidth=6cm]{Add a test image \ldots}
+% \end{wrapfigure}
+% Another usage of the option is when |\missingfigure| is used in
+% the wrapfigure environment.
+% \begin{verbatim}
+% \begin{wrapfigure}{r}[2cm]{6cm}
+% \missingfigure[figwidth=6cm]{Add a test image \ldots}
+% \end{wrapfigure}
+% \end{verbatim}
+% 
+% \DescribeMacro{figheight}
+% The |figheight=length| option changes the height of the inserted 
+% missing figure.
+% The default height is 4cm and using values lower than this might 
+% cause the warning sign to pop out of the gray area.
+% \begin{verbatim}
+% \missingfigure[figheight=6cm]{Testing a long text string}
+% \end{verbatim}
+% \missingfigure[figheight=6cm]{Testing}
+%
+%
+% \subsection{Options for the listoftodos command}
+% The |\listoftodos| command takes one optional argument, that
+% defines the name of the inserted list of todos.
+% \begin{verbatim}
+% \listoftodos[I can be called anything]
+% \end{verbatim}
+% 
+%
+%
+% \subsection{Known issues}
+% \subsubsection{Package loading order}
+% The luatodonotes package requires the following packages:
+% \begin{multicols}{2}
+% \begin{itemize}
+% \item ifthen
+% \item xkeyval
+% \item xcolor
+% \item tikz
+% \item graphicx (is loaded via the tikz package)
+% \item luacode
+% \item luatex
+% \item atbegshi
+% \item xstring
+% \item zref-abspage
+% \item ifoddpage
+% \item soul
+% \item soulpos
+% \end{itemize}
+% \end{multicols}
+% \noindent
+% When luatodonotes are loaded in the preamble, the package checks
+% if these packages all are loaded. If that is not the case it loads
+% the missing packages with no options given.
+% If you want to give some specific options to some of these
+% packages, you have to load them \emph{before} the luatodonotes
+% package, otherwise you will get an ''Option clash'' error when
+% latex works on the document.
+% 
+% If both the menukeys and the xcolor (with the option \verb!table!) 
+% package should be loaded, the following order must be used.
+% \begin{verbatim}
+%\usepackage[table]{xcolor}
+%\usepackage{todonotes}
+%\usepackage{menukeys}
+% \end{verbatim}
+%
+% \subsubsection{Spacing around inserted notes}
+% Inserted todo commands will eat the white space after the command.
+% \begin{verbatim}
+%Testing\todo{Does this eat the space?} testing
+% \end{verbatim}
+% 
+% Testing\todo{Does this eat the space?}testing
+%
+%
+% \subsubsection{Conflicts with the amsart documentclass}
+% The |amsart| document class redefines some internal commands that
+% is used by the todonotes package, this will cause an malfunctioning
+% |\listoftodos| command.
+% The following code to circumvent the problem was given by Dan
+% Luecking on comp.text.tex
+% \begin{verbatim}
+% \makeatletter
+%   \providecommand\@dotsep{5}
+% \makeatother
+% \listoftodos\relax 
+% \end{verbatim}
+%
+% NOT TESTED
+% NOT TESTED
+% NOT TESTED
+%
+% Dominique suggests the following workaround.
+% \begin{verbatim}
+% \makeatletter
+% \providecommand\@dotsep{5}
+% \def\listtodoname{List of Todos}
+% \def\listoftodos{\@starttoc{tdo}\listtodoname}
+% \makeatother
+% \end{verbatim}
+%
+%
+%
+% \subsubsection{Unknown option ''remember picture''}
+% If latex throws the error
+% \begin{verbatim}
+% Package tikz Error: I do not know what to do with the option ``remember picture''.
+% \end{verbatim}
+% It probably means that your latex installation is outdated, as
+% only newer versions of latex driver for tikz supports the
+% |remember picture| option.
+% For additional info consult 
+% ''Section 9.2.2 Producing PDF Output'' in the tikz manual. 
+% \url{http://www.ctan.org/tex-archive/graphics/pgf/base/doc/generic/pgf/pgfmanual.pdf}
+%
+%
+%
+% \subsubsection{List of todo heading is not correctly formatted}
+% If using natbib, the todonotes list title gets screwed up unless 
+% you do something like this:
+% \begin{verbatim}
+% \makeatletter\let\chapter\@undefined\makeatother 
+% \end{verbatim}
+% Suggestion by Richard Stanton.
+%
+%
+%
+% \subsubsection{Some commands not working inside notes}
+% Some commands will not work like expected, when used inside of a note.
+% They will cause errors when processing the document or have simply no effect.
+% This is caused by the mechanism used to layout the notes:
+% The content is written into a hbox when a |\todo| is encountered.
+% The contents of this box are then stored until the note is typeset.
+% By that time the contents are taken out of the hbox (by |\unhbox|) and put
+% into a |\parbox| with the width required for the note.
+% I don't have a solution for this problem yet.
+% 
+% 
+% 
+% 
+%
+% \iffalse
+% \StopEventually{\PrintChanges\PrintIndex}
+% \fi
+% \StopEventually{\PrintChanges}
+%
+% \newpage
+% \section{Implementation}
+%
+% Identifies the package and loads the packages dependences.
+%    \begin{macrocode}
+\ProvidesPackage{luatodonotes}[2014/06/08]
+\RequirePackage{ifthen}
+\RequirePackage{xkeyval}
+\RequirePackage{xcolor}
+\RequirePackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{intersections}
+\usetikzlibrary{decorations.pathmorphing}
+\RequirePackage{luacode}
+\RequirePackage{luatex}
+\RequirePackage{atbegshi}
+\RequirePackage{xstring}
+\RequirePackage{zref-abspage}
+\RequirePackage{ifoddpage}
+\RequirePackage{soul}
+\RequirePackage{soulpos}
+%    \end{macrocode}
+% Some default values are set
+%    \begin{macrocode}
+\newcommand{\@todonotes@text}{}%
+\newcommand{\@todonotes@backgroundcolor}{orange}
+\newcommand{\@todonotes@linecolor}{black!30}
+\newcommand{\@todonotes@bordercolor}{black}
+\newcommand{\@todonotes@leaderwidth}{1.6pt}
+\newcommand{\@todonotes@textsize}{\normalsize}
+\newcommand{\@todonotes@figwidth}{\columnwidth}
+\newcommand{\@todonotes@figheight}{4cm}
+%    \end{macrocode}
+% Default values for variables added by luatodonotes
+%    \begin{macrocode}
+\newcommand{\@todonotes@positioning}{inputOrderStacks}
+\newcommand{\@todonotes@splitting}{none}
+\newcommand{\@todonotes@leadertype}{opo}
+\newcommand{\@todonotes@interNoteSpace}{5pt}
+\newcommand{\@todonotes@noteInnerSep}{5pt}
+\newcommand{\@todonotes@routingAreaWidth}{0.4cm}
+\newcommand{\@todonotes@minNoteWidth}{2.0cm}
+\newcommand{\@todonotes@distanceNotesPageBorder}{0.5cm}
+\newcommand{\@todonotes@distanceNotesText}{0.2cm}
+\newcommand{\@todonotes@rasterHeight}{1cm}
+%    \end{macrocode}
+%    \begin{macrocode}
+\AtBeginDocument{
+\ifx\undefined\phantomsection
+\newcommand{\phantomsection}{}
+\fi
+}
+%    \end{macrocode}
+%
+% \subsection{Declaration of options for the package}
+% In this part the various options for
+% the package are defined.
+%
+% Define the default text strings and set localization options for
+% the danish and german languages.
+%    \begin{macrocode}
+\newcommand{\@todonotes@todolistname}{Todo list}
+\newcommand{\@todonotes@MissingFigureText}{Figure}
+\newcommand{\@todonotes@MissingFigureUp}{Missing}
+\newcommand{\@todonotes@MissingFigureDown}{figure}
+\newcommand{\@todonotes@SetTodoListName}[1]
+    {\renewcommand{\@todonotes@todolistname}{#1}}
+\newcommand{\@todonotes@SetMissingFigureText}[1]
+    {\renewcommand{\@todonotes@MissingFigureText}{#1}}
+\newcommand{\@todonotes@SetMissingFigureUp}[1]
+    {\renewcommand{\@todonotes@MissingFigureUp}{#1}}
+\newcommand{\@todonotes@SetMissingFigureDown}[1]
+    {\renewcommand{\@todonotes@MissingFigureDown}{#1}}
+\newif{\if@todonotes@reverseMissingFigureTriangle}
+\DeclareOptionX{catalan}{
+    \@todonotes@SetTodoListName{Llista de feines pendents}%
+    \@todonotes@SetMissingFigureText{Figura}%
+    \@todonotes@SetMissingFigureUp{Figura}%
+    \@todonotes@SetMissingFigureDown{pendent}%
+}
+\DeclareOptionX{danish}{%
+    \@todonotes@SetTodoListName{G\o{}rem\aa{}lsliste}%
+    \@todonotes@SetMissingFigureText{Figur}%
+    \@todonotes@SetMissingFigureUp{Manglende}%
+    \@todonotes@SetMissingFigureDown{figur}%
+}
+\DeclareOptionX{dutch}{%
+   \@todonotes@SetTodoListName{Lijst van onafgewerkte taken}%
+   \@todonotes@SetMissingFigureText{Figuur}%
+   \@todonotes@SetMissingFigureUp{Ontbrekende}%
+   \@todonotes@SetMissingFigureDown{figuur}%
+}
+\DeclareOptionX{english}{%
+   \@todonotes@SetTodoListName{Todo list}%
+   \@todonotes@SetMissingFigureText{Figure}%
+   \@todonotes@SetMissingFigureUp{Missing}%
+   \@todonotes@SetMissingFigureDown{figure}%
+}
+\DeclareOptionX{french}{%
+    \@todonotes@SetTodoListName{Liste des points \`a traiter}%
+    \@todonotes@SetMissingFigureText{Figure}%
+    \@todonotes@SetMissingFigureUp{Figure}%
+    \@todonotes@SetMissingFigureDown{manquante}%
+    \@todonotes@reverseMissingFigureTrianglefalse
+}
+\DeclareOptionX{german}{%
+    \@todonotes@SetTodoListName{Liste der noch zu erledigenden Punkte}%
+    \@todonotes@SetMissingFigureText{Abbildung}%
+    \@todonotes@SetMissingFigureUp{Fehlende}%
+    \@todonotes@SetMissingFigureDown{Abbildung}%
+}
+\DeclareOptionX{italian}{
+    \@todonotes@SetTodoListName{Elenco delle cose da fare}%
+    \@todonotes@SetMissingFigureText{Figura}%
+    \@todonotes@SetMissingFigureUp{Figura}%
+    \@todonotes@SetMissingFigureDown{mancante}%
+}
+\DeclareOptionX{ngerman}{%
+    \@todonotes@SetTodoListName{Liste der noch zu erledigenden Punkte}%
+    \@todonotes@SetMissingFigureText{Abbildung}%
+    \@todonotes@SetMissingFigureUp{Fehlende}%
+    \@todonotes@SetMissingFigureDown{Abbildung}%
+}
+\DeclareOptionX{portuguese}{
+    \@todonotes@SetTodoListName{Lista de tarefas pendentes}%
+    \@todonotes@SetMissingFigureText{Figura}%
+    \@todonotes@SetMissingFigureUp{Figura}%
+    \@todonotes@SetMissingFigureDown{pendente}%
+}
+\DeclareOptionX{spanish}{
+    \@todonotes@SetTodoListName{Lista de tareas pendientes}%
+    \@todonotes@SetMissingFigureText{Figura}%
+    \@todonotes@SetMissingFigureUp{Figura}%
+    \@todonotes@SetMissingFigureDown{pendiente}%
+}
+\DeclareOptionX{swedish}{%
+    \@todonotes@SetTodoListName{Att g\"{o}ra-lista}%
+    \@todonotes@SetMissingFigureText{Figur}%
+    \@todonotes@SetMissingFigureUp{Figur}%
+    \@todonotes@SetMissingFigureDown{saknas}%
+}
+%    \end{macrocode}
+% Create a counter, for storing the number of inserted todos.
+%    \begin{macrocode}
+\newcounter{@todonotes@numberoftodonotes}
+%    \end{macrocode}
+% Create a counter, for storing the number of lines in the current todoarea.
+%    \begin{macrocode}
+\newcounter{@todonotes@numberofLinesInArea}
+%    \end{macrocode}
+% Toggle whether the package should obey the global draft option.
+%    \begin{macrocode}
+\newif{\if@todonotes@obeyDraft}
+\DeclareOptionX{obeyDraft}{\@todonotes@obeyDrafttrue}
+\newif{\if@todonotes@isDraft}
+\DeclareOptionX{draft}{\@todonotes@isDrafttrue}
+\DeclareOptionX{draftcls}{\@todonotes@isDrafttrue}
+\DeclareOptionX{draftclsnofoot}{\@todonotes@isDrafttrue}
+\newif{\if@todonotes@obeyFinal}
+\DeclareOptionX{obeyFinal}{\@todonotes@obeyFinaltrue}
+\newif{\if@todonotes@isFinal}
+\DeclareOptionX{final}{\@todonotes@isFinaltrue}
+%    \end{macrocode}
+% Make it possible to disable the functionality
+% of the package. If this option is given, the
+% commands  |\todo{}| and |\listoftodos| are defined
+% as commands with no effect. (But you can still
+% compile you document with these commands).
+%    \begin{macrocode}
+\newif{\if@todonotes@disabled}
+\DeclareOptionX{disable}{\@todonotes@disabledtrue}
+%    \end{macrocode}
+% Show small boxes in the list of todos with the color of the
+% inserted todonotes.
+%    \begin{macrocode}
+\newif{\if@todonotes@colorinlistoftodos}
+\DeclareOptionX{colorinlistoftodos}{\@todonotes@colorinlistoftodostrue}
+%    \end{macrocode}
+% We only define dvistyle for compatibility with todonotes. 
+% The option was intented for use with \texttt{tex}, there should be no problems
+% using \texttt{luatex}.
+% So we ignore this option and issue a warning.
+%    \begin{macrocode}
+\DeclareOptionX{dvistyle}{\PackageWarningNoLine{luatodonotes}
+    {Parameter dvistyle is not supported by luatodonotes.
+    Ignoring this option}}
+%    \end{macrocode}
+% Create a color option.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {color}{
+        \renewcommand{\@todonotes@backgroundcolor}{#1}
+        \renewcommand{\@todonotes@linecolor}{#1}}
+%    \end{macrocode}
+% Make the background color of the notes as
+% an option.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {backgroundcolor}{\renewcommand{\@todonotes@backgroundcolor}{#1}}
+%    \end{macrocode}
+% Make the line color of the notes as
+% an option.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {linecolor}{\renewcommand{\@todonotes@linecolor}{#1}}
+%    \end{macrocode}
+% Make the color of the notes box color as
+% an option.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {bordercolor}{\renewcommand{\@todonotes@bordercolor}{#1}}
+%    \end{macrocode}
+% Make the width of the leader line as
+% an option.
+% It is later set as \texttt{line width} in TikZ.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {leaderwidth}{\renewcommand{\@todonotes@leaderwidth}{#1}}
+%    \end{macrocode}
+% Set whether short captions given as arguments to the todo command
+% should be included in the inserted todonote.
+%    \begin{macrocode}
+\newif{\if@todonotes@prependcaptionglobal}
+\@todonotes@prependcaptionglobalfalse
+\DeclareOptionX{prependcaption}{\@todonotes@prependcaptionglobaltrue}
+%    \end{macrocode}
+% This option is only there for compatibility with todonotes.
+% We ignore it and issue a warning because the width of our labels is
+% determined dynamically based on the page layout.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {textwidth}{\PackageWarningNoLine{luatodonotes}
+    {Parameter textwidth is not supported by luatodonotes}}
+%    \end{macrocode}
+% Make the text size as an option. It requires some magic with the 
+% |\csname| and |\endcsname| macros, as commands cannot be taken as
+% options for a package.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {textsize}{\renewcommand{\@todonotes@textsize}{\csname #1\endcsname}}
+%    \end{macrocode}
+% Add option for shadows behind the inserted notes
+%    \begin{macrocode}
+\newif{\if@todonotes@shadowenabled}
+\@todonotes@shadowenabledfalse
+\DeclareOptionX{shadow}{\@todonotes@shadowenabledtrue
+\usetikzlibrary{shadows}}
+%    \end{macrocode}
+% Add option for the default width of the figure inserted with
+% |\missingfigure|.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {figwidth}{\renewcommand{\@todonotes@figwidth}{#1}}
+\define@key{luatodonotes.sty}%
+    {figheight}{\renewcommand{\@todonotes@figheight}{#1}}
+%    \end{macrocode}
+% Specify the name of the algorithm used to specify the position of the labels.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {positioning}{\renewcommand{\@todonotes@positioning}{#1}}
+%    \end{macrocode}
+% Specify the name of the algorithm used to split the notes for left and right side.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {splitting}{\renewcommand{\@todonotes@splitting}{#1}}
+%    \end{macrocode}
+% Specify the type of leaders that are drawn.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {leadertype}{\renewcommand{\@todonotes@leadertype}{#1}}
+%    \end{macrocode}
+% Specify the vertical distance between the notes.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {interNoteSpace}{\renewcommand{\@todonotes@interNoteSpace}{#1}}
+%    \end{macrocode}
+% Specify the distance from the text inside the notes to the border.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {noteInnerSep}{\renewcommand{\@todonotes@noteInnerSep}{#1}}
+%    \end{macrocode}
+% Specify the width of the routing area used for $opo$- and $os$-leaders.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {routingAreaWidth}{\renewcommand{\@todonotes@routingAreaWidth}{#1}}
+%    \end{macrocode}
+% Minimum width of notes in one margin beside the text to be considered for
+% label placement.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {minNoteWidth}{\renewcommand{\@todonotes@minNoteWidth}{#1}}
+%    \end{macrocode}
+% Specify horizontal distance from the notes to the borders of the page.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {distanceNotesPageBorder}%
+    {\renewcommand{\@todonotes@distanceNotesPageBorder}{#1}}
+%    \end{macrocode}
+% Specify the horizontal distance between the notes and the text area.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {distanceNotesText}{\renewcommand{\@todonotes@distanceNotesText}{#1}}
+%    \end{macrocode}
+% Specify the height of the raster used for the $po$-leader algorithm.
+%    \begin{macrocode}
+\define@key{luatodonotes.sty}%
+    {rasterHeight}{\renewcommand{\@todonotes@rasterHeight}{#1}}
+%    \end{macrocode}
+% This option is used to activate debug mode.
+% Luatex prints more verbose output to the commandline in this mode.
+% Furthermore, some of the algorithms also print debugging hints onto the
+% output page.
+%    \begin{macrocode}
+\newif{\if@todonotes@debugenabled}
+\@todonotes@debugenabledfalse
+\DeclareOptionX{debug}{\@todonotes@debugenabledtrue}
+%    \end{macrocode}
+% Finally process the given options.
+%    \begin{macrocode}
+\ProcessOptionsX*
+%    \end{macrocode}
+% If the |obeyDraft| is given, check whether one of the |draft|, 
+% |draftcls| or |draftclsnofoot|
+% options are given and enable or disable the functionality of this
+% package.
+% If the |obeyFinal| option is given together with the |final| option
+% the todonotes are disabled.
+% The |disable| option will overrule the effect of |obeyDraft|.
+%    \begin{macrocode}
+\if@todonotes@disabled
+\else
+    \if@todonotes@obeyDraft
+        \@todonotes@disabledtrue
+        \if@todonotes@isDraft
+            \@todonotes@disabledfalse
+        \fi
+    \fi
+    \if@todonotes@obeyFinal
+        \@todonotes@disabledfalse
+        \if@todonotes@isFinal
+            \@todonotes@disabledtrue
+        \fi
+    \fi
+\fi
+%    \end{macrocode}
+% \subsection{Initialisation of our Lua code}
+% In this part we define some of the variables used by Lua depending on the
+% package options and do some other initialisation tasks.
+%
+% We first need some temporary dimensions, which are written by \TeX\ and read
+% from Lua.
+% We use dimensions here because it is easier to access \TeX\ dimensions from
+% Lua than \LaTeX\ lengths.
+% We use |tex.dimen| in Lua to access dimensions.
+% The first dimensions are used when extracting the absolute coordinates of a
+% position on the page.
+%    \begin{macrocode}
+\newdimen\@todonotes@extractx
+\newdimen\@todonotes@extracty
+%    \end{macrocode}
+% The following savebox and dimensions are used to calculate the height of a
+% certain label.
+% The box and dimensions are filled by \TeX\ and then read from Lua.
+%    \begin{macrocode}
+\newsavebox\@todonotes@heightcalcbox
+\newdimen\@todonotes@heightcalcboxdepth
+\newdimen\@todonotes@heightcalcboxheight
+%    \end{macrocode}
+% The following savebox is used to store the contents of a note and is then
+% read from Lua.
+%    \begin{macrocode}
+\newsavebox\@todonotes@notetextbox
+%    \end{macrocode}
+% The following dimensions are used to read |\baselineskip| and
+% |\f@size| from Lua.
+% Dimension |\@todonotes@currentsidemargin| is set to the left margin,
+% i.\,e., to the value of length |\oddsidemargin| or
+% |\evensidemargin| depending on the type page.
+%    \begin{macrocode}
+\newdimen\@todonotes@baselineskip
+\newdimen\@todonotes@fontsize
+\newdimen\@todonotes@currentsidemargin
+%    \end{macrocode}
+% Loading our main Lua file.
+%    \begin{macrocode}
+\directlua{require("luatodonotes")}
+%    \end{macrocode}
+% Setting variables to values given by package options.
+%    \begin{macrocode}
+\directlua{noteInnerSep =
+    string.todimen("\luatexluaescapestring{\@todonotes@noteInnerSep}")}
+\directlua{noteInterSpace =
+    string.todimen("\luatexluaescapestring{\@todonotes@interNoteSpace}")}
+\directlua{routingAreaWidth =
+    string.todimen("\luatexluaescapestring{\@todonotes@routingAreaWidth}")}
+\directlua{minNoteWidth =
+    string.todimen("\luatexluaescapestring{\@todonotes@minNoteWidth}")}
+\directlua{distanceNotesPageBorder =
+    string.todimen("\luatexluaescapestring{\@todonotes@distanceNotesPageBorder}")}
+\directlua{distanceNotesText =
+    string.todimen("\luatexluaescapestring{\@todonotes@distanceNotesText}")}
+\directlua{rasterHeight =
+    string.todimen("\luatexluaescapestring{\@todonotes@rasterHeight}")}
+%    \end{macrocode}
+% Set the variable for the positioning algorithm depending on the corresponding
+% package option.
+%    \begin{macrocode}
+\IfStrEqCase{\@todonotes@positioning}{%
+    {inText}{\directlua{positioning = positioningAlgos["inText"]}}%
+    {inputOrder}{\directlua{positioning = positioningAlgos["inputOrder"]}}%
+    {inputOrderStacks}{\directlua{positioning =
+        positioningAlgos["inputOrderStacks"]}}%
+    {sLeaderNorthEast}{\directlua{positioning =
+        positioningAlgos["sLeaderNorthEast"]}}%
+    {sLeaderNorthEastBelow}{\directlua{positioning =
+        positioningAlgos["sLeaderNorthEastBelow"]}}%
+    {sLeaderEast}{\directlua{positioning =
+        positioningAlgos["sLeaderEast"]}}%
+    {poLeaders}{\directlua{positioning = positioningAlgos["poLeaders"]}}%
+    {poLeadersAvoidLines}{\directlua{positioning =
+        positioningAlgos["poLeadersAvoidLines"]}}%
+    {sLeaderNorthEastBelowStacks}{\directlua{positioning =
+        positioningAlgos["sLeaderNorthEastBelowStacks"]}}}%
+    [\directlua{positioning = positioningAlgos["inputOrderStacks"]}
+    \PackageWarningNoLine{luatodonotes}
+        {Invalid value for parameter positioning: \@todonotes@positioning}]
+%    \end{macrocode}
+% Set the variable for the splitting algorithm depending on the corresponding
+% package option.
+%    \begin{macrocode}
+\IfStrEqCase{\@todonotes@splitting}{%
+    {none}{\directlua{splitting = splittingAlgos["none"]}}%
+    {middle}{\directlua{splitting = splittingAlgos["middle"]}}%
+    {median}{\directlua{splitting = splittingAlgos["median"]}}%
+    {weightedMedian}{\directlua{splitting = splittingAlgos["weightedMedian"]}}}%
+    [\directlua{splitting = splittingAlgos["none"]}
+    \PackageWarningNoLine{luatodonotes}
+        {Invalid value for parameter split: \@todonotes@splitting}]
+%    \end{macrocode}
+% Specify the requested leader type.
+%    \begin{macrocode}
+\IfStrEqCase{\@todonotes@leadertype}{%
+    {s}{\directlua{leaderType = leaderTypes["s"]}}%
+    {opo}{\directlua{leaderType = leaderTypes["opo"]}}%
+    {po}{\directlua{leaderType = leaderTypes["po"]}}%
+    {sBezier}{\directlua{leaderType = leaderTypes["sBezier"]}}%
+    {os}{\directlua{leaderType = leaderTypes["os"]}}}%
+    [\directlua{leaderType = leaderTypes["opo"]}
+    \PackageWarningNoLine{luatodonotes}
+        {Invalid value for parameter leadertype: \@todonotes@leadertype}]
+%    \end{macrocode}
+% The following commands are used to detect the absolute positions of lines on
+% the page.
+%
+% We first need to define a command to be able to insert the position from
+% |\pdflastypos| into a write-whatsit in Lua.
+% We need this workaround because we cannot insert |\pdflastypos| directly into
+% the tokenlist in the Lua callback \texttt{callbackOutputLinePositions()}.
+%    \begin{macrocode}
+\def\@todonotes@pdflastypos{\the\pdflastypos}
+%    \end{macrocode}
+% The following commands are written to the temporary \texttt{lpo}-file.
+% When reading this file we call a Lua function for each line in the file and
+% thus can collect the line positions in a Lua table.
+%    \begin{macrocode}
+\newcommand{\@todonotes@lineposition}[3]{%
+    \directlua{linePositionsAddLine(#1,#2,#3)}%
+}
+\newcommand{\@todonotes@nextpage}{%
+    \directlua{linePositionsNextPage()}%
+}%
+%    \end{macrocode}
+% The following macro is used in \texttt{AtBeginShipout} to signal in the
+% \texttt{lpo}-file that a new page is started.
+%    \begin{macrocode}
+\newcommand{\@todonotes@writeNextpageToLpo}{%
+    \ifdefined\tf@lpo%
+        \immediate\write\tf@lpo{\@backslashchar @todonotes@nextpage}%
+    \fi
+}
+%    \end{macrocode}
+% Depending on the debug-option of the package we set the corresponding Lua
+% variable here.
+% Additionally, we prepare to print our notes and leaders in foreground when in
+% debug mode.
+%    \begin{macrocode}
+\if@todonotes@debugenabled
+    \directlua{todonotesDebug = true}
+    \newcommand{\@todonotes@AtBeginShipoutUpperLeft}
+        {\AtBeginShipoutUpperLeftForeground}
+\else
+    \directlua{todonotesDebug = false}
+    \newcommand{\@todonotes@AtBeginShipoutUpperLeft}
+        {\AtBeginShipoutUpperLeft}
+\fi
+%    \end{macrocode}
+% Initialise the script when all Lua variables are set according to the package
+% options.
+%    \begin{macrocode}
+\directlua{initTodonotes()}
+%    \end{macrocode}
+% Some definitions to highlight areas in text.
+% The first command is needed to accept control spaces (|\ |) in arguments for
+% soul commands.
+% After that we define the highlighting command used for todoareas.
+%    \begin{macrocode}
+\soulregister{\ }{0}
+\newlength{\todonotes@textmark@width}
+\newlength{\todonotes@textmark@fontsize}
+\newlength{\todonotes@textmark@linebelow}
+\newlength{\todonotes@textmark@lineabove}
+\ulposdef{\todonotes@textmark@highlight}{%
+    \setlength\todonotes@textmark@width\ulwidth%
+    \setlength\todonotes@textmark@fontsize{\f@size pt}%
+    \stepcounter{@todonotes@numberofLinesInArea}%
+    \ifulstarttype{0}%
+        {% begin of area
+        \def\todonotes@textmark@decoLeft{}%
+        \def\todonotes@textmark@shift{-2pt}%
+        \addtolength\todonotes@textmark@width{2pt}%
+        \setcounter{@todonotes@numberofLinesInArea}{1}}%
+        {\def\todonotes@textmark@decoLeft{@todonotes@todoarea}%
+        \def\todonotes@textmark@shift{-4pt}%
+        \addtolength\todonotes@textmark@width{4pt}}%
+    \ifulendtype{0}%
+        {% last line of area
+        \def\todonotes@textmark@decoRight{}%
+        \addtolength\todonotes@textmark@width{2pt}%
+        \directlua{processLastLineInTodoArea()}}%
+        {\def\todonotes@textmark@decoRight{@todonotes@todoarea}%
+        \addtolength\todonotes@textmark@width{4pt}}%
+    \newcommand{\@todonotes@nodeNamePrefix}%
+        {@todonotes@\arabic{@todonotes@numberoftodonotes}%
+         @\arabic{@todonotes@numberofLinesInArea} }%
+    \hspace*{\todonotes@textmark@shift}{\smash{%
+        \begin{tikzpicture}[overlay,remember picture,
+            deco/.style={}]%
+            \setlength\todonotes@textmark@linebelow%
+                {-0.95\dimexpr\baselineskip-\f@size pt\relax}%
+            \setlength\todonotes@textmark@lineabove%
+                {\dimexpr\f@size pt+\todonotes@textmark@linebelow\relax}%
+            \coordinate
+                (\@todonotes@nodeNamePrefix areaSW)
+                at (0,\todonotes@textmark@linebelow);
+            \coordinate
+                (\@todonotes@nodeNamePrefix areaSE)
+                at (\todonotes@textmark@width, \todonotes@textmark@linebelow);
+            \coordinate
+                (\@todonotes@nodeNamePrefix areaNE)
+                at (\todonotes@textmark@width,\todonotes@textmark@lineabove);
+            \coordinate
+                (\@todonotes@nodeNamePrefix areaNW)
+                at (0,\todonotes@textmark@lineabove);
+            \draw[draw=green!70,fill=green,fill opacity=.2]
+                (\@todonotes@nodeNamePrefix areaSW)
+                decorate[\todonotes@textmark@decoLeft] {
+                    -- (\@todonotes@nodeNamePrefix areaNW)
+                }
+                -- (\@todonotes@nodeNamePrefix areaNE)
+                decorate[\todonotes@textmark@decoRight] {
+                    -- (\@todonotes@nodeNamePrefix areaSE)
+                }
+                -- cycle;
+         \end{tikzpicture}%
+    }}%
+}%
+%    \end{macrocode}
+% \subsection{Options for the todo command}
+%
+% In this part the various options for 
+% commands in the package are defined.
+% Set an arbitrarily fill color
+%    \begin{macrocode}
+\newcommand{\@todonotes@currentlinecolor}{}%
+\newcommand{\@todonotes@currentbackgroundcolor}{}%
+\newcommand{\@todonotes@currentbordercolor}{}%
+\define@key{todonotes}{color}{%
+    \renewcommand{\@todonotes@currentlinecolor}{#1}%
+    \renewcommand{\@todonotes@currentbackgroundcolor}{#1}}%
+\define@key{todonotes}{linecolor}{%
+    \renewcommand{\@todonotes@currentlinecolor}{#1}}%
+\define@key{todonotes}{backgroundcolor}{%
+    \renewcommand{\@todonotes@currentbackgroundcolor}{#1}}%
+\define@key{todonotes}{bordercolor}{%
+    \renewcommand{\@todonotes@currentbordercolor}{#1}}%
+\newcommand{\@todonotes@currentleaderwidth}{}%
+\define@key{todonotes}{leaderwidth}{%
+    \renewcommand{\@todonotes@currentleaderwidth}{#1}}%
+%    \end{macrocode}
+% Set a relative font size
+%    \begin{macrocode}
+\newcommand{\@todonotes@sizecommand}{}%
+\define@key{todonotes}{size}{\renewcommand{\@todonotes@sizecommand}{#1}}%
+%    \end{macrocode}
+% Should the todo item be disabled?
+%    \begin{macrocode}
+\newif\if@todonotes@localdisable%
+\define@key{todonotes}{disable}[]{\@todonotes@localdisabletrue}%
+\define@key{todonotes}{nodisable}[]{\@todonotes@localdisablefalse}%
+%    \end{macrocode}
+% Should the todo item be included in the list of todos?
+%    \begin{macrocode}
+\newif\if@todonotes@appendtolistoftodos%
+\define@key{todonotes}{list}[]{\@todonotes@appendtolistoftodostrue}%
+\define@key{todonotes}{nolist}[]{\@todonotes@appendtolistoftodosfalse}%
+%    \end{macrocode}
+% Should the todo item be displayed inline?
+%    \begin{macrocode}
+\newif\if@todonotes@inlinenote%
+\define@key{todonotes}{inline}[]{\@todonotes@inlinenotetrue}%
+\define@key{todonotes}{noinline}[]{\@todonotes@inlinenotefalse}%
+%    \end{macrocode}
+%    \begin{macrocode}
+\newif\if@todonotes@prependcaption%
+\define@key{todonotes}{prepend}[]{\@todonotes@prependcaptiontrue}%
+\define@key{todonotes}{noprepend}[]{\@todonotes@prependcaptionfalse}%
+%    \end{macrocode}
+% Should the note in the margin be connected to the insertion point
+% in the text?
+%    \begin{macrocode}
+\newif\if@todonotes@line%
+\define@key{todonotes}{line}[]{\@todonotes@linetrue}%
+\define@key{todonotes}{noline}[]{\@todonotes@linefalse}%
+%    \end{macrocode}
+% Only here for compatibility with todonotes.
+% We don't need the fancy lines because we have more advanced drawing styles.
+% So we ignore this option and issue a warning.
+%    \begin{macrocode}
+\define@key{todonotes}{fancyline}[]{\PackageWarningNoLine{luatodonotes}
+    {Parameter fancyline is not supported by luatodonotes}}%
+\define@key{todonotes}{nofancyline}[]{}%
+%    \end{macrocode}
+% Author option.
+%    \begin{macrocode}
+\newcommand{\@todonotes@author}{}%
+\newif\if@todonotes@authorgiven%
+\define@key{todonotes}{author}{%
+    \renewcommand{\@todonotes@author}{#1}%
+    \@todonotes@authorgiventrue}%
+\define@key{todonotes}{noauthor}[]{\@todonotes@authorgivenfalse}%
+%    \end{macrocode}
+% Should the text in the list of todos be different from the text
+% in the todonote?
+%    \begin{macrocode}
+\newcommand{\@todonotes@caption}{}%
+\newif\if@todonotes@captiongiven%
+\define@key{todonotes}{caption}%
+    {\renewcommand{\@todonotes@caption}{#1}%
+    \@todonotes@captiongiventrue}%
+\define@key{todonotes}{nocaption}[]{\@todonotes@captiongivenfalse}%
+%    \end{macrocode}
+% Change the current figure width and height.
+%    \begin{macrocode}
+\newcommand{\@todonotes@currentfigwidth}{\@todonotes@figwidth}
+\define@key{todonotes}%
+    {figwidth}{\renewcommand{\@todonotes@currentfigwidth}{#1}}
+\newcommand{\@todonotes@currentfigheight}{\@todonotes@figheight}
+\define@key{todonotes}%
+    {figheight}{\renewcommand{\@todonotes@currentfigheight}{#1}}
+%    \end{macrocode}
+% Preset values of the options
+%    \begin{macrocode}
+\presetkeys%
+    {todonotes}%
+    {linecolor=\@todonotes@linecolor,%
+    backgroundcolor=\@todonotes@backgroundcolor,%
+    bordercolor=\@todonotes@bordercolor,%
+    leaderwidth=\@todonotes@leaderwidth,%
+    nodisable,%
+    noinline,%
+    nocaption,%
+    noauthor,%
+    figwidth=\@todonotes@figwidth,%
+    figheight=\@todonotes@figheight,%
+    line, list, size=\@todonotes@textsize}{}%
+%    \end{macrocode}
+% \subsection{The main code part}
+% Here are the actual macros defined.
+% The following boolean is used to remember if |\todo| or |\todoarea|
+% was called.
+%    \begin{macrocode}
+\newif\if@todonotes@areaselected%
+%    \end{macrocode}
+% The following token registers are used to access the data for a note (which
+% is stored in macros) from Lua.
+%    \begin{macrocode}
+\newtoks\@todonotes@toks@currentlinecolor%
+\newtoks\@todonotes@toks@currentbackgroundcolor%
+\newtoks\@todonotes@toks@currentbordercolor%
+\newtoks\@todonotes@toks@currentleaderwidth%
+\newtoks\@todonotes@toks@sizecommand%
+%    \end{macrocode}
+% If the option "disable" was passed to the package
+% define empty commands.
+%    \begin{macrocode}
+\if@todonotes@disabled%
+    \newcommand{\listoftodos}[1][]{}
+    \newcommand{\@todo}[2][]{}
+    \newcommand{\@todoarea}[3][]{}
+    \newcommand{\missingfigure}[2][]{}
+\else % \if@todonotes@disabled
+%    \end{macrocode}
+% Define the |\listoftodos| command and define the 
+% appearance of the list of todos.
+%    \begin{macrocode}
+\newcommand{\listoftodos}[1][\@todonotes@todolistname]
+    {\@ifundefined{chapter}{\section*{#1}}{\chapter*{#1}} \@starttoc{tdo}}
+\newcommand{\l@todo}
+    {\@dottedtocline{1}{0em}{2.3em}}
+%    \end{macrocode}
+% Define styles used by the todo command.
+% Colors are set directly when placing the notes.
+%    \begin{macrocode}
+\tikzset{@todonotes@todoarea/.style={
+    decoration={snake,amplitude=3.5pt,segment length=5pt}}}
+\tikzset{@todonotes@notestyleraw/.style={
+    line width=0.5pt,
+    inner sep = \@todonotes@noteInnerSep,
+    rounded corners=4pt}}
+%    \end{macrocode}
+% Add shadows and rounded corners to the inserted todonotes.
+%    \begin{macrocode}
+\if@todonotes@shadowenabled
+    \tikzset{@todonotes@notestyle/.style={@todonotes@notestyleraw,
+        general shadow={shadow xshift=.5ex, shadow yshift=-.5ex,
+        opacity=1,fill=black!50}}}
+\else
+    \tikzset{@todonotes@notestyle/.style={@todonotes@notestyleraw}}
+\fi
+\tikzset{@todonotes@leader/.style={}}
+\tikzset{@todonotes@textmark/.style={rounded corners}}
+\tikzset{@todonotes@inlinenote/.style={
+    @todonotes@notestyle,
+    draw=\@todonotes@currentbordercolor,
+    fill=\@todonotes@currentbackgroundcolor,
+    text width=\linewidth - 1.6 ex - 1 pt}}
+%    \end{macrocode}
+% \begin{macro}{\@todocommon}
+%   Common macro used from |\@todo| and |\@todoarea|.
+%   Used to actually draw/save the note.
+%    \begin{macrocode}
+\newcommand{\@todocommon}[2]{%
+%    \end{macrocode}
+% Use the global value for determining the default prepend behavior.
+%    \begin{macrocode}
+\if@todonotes@prependcaptionglobal%
+\@todonotes@prependcaptiontrue%
+\else%
+\@todonotes@prependcaptionfalse%
+\fi%
+%    \end{macrocode}
+% Store the original text for later usage and parse the given options.
+%    \begin{macrocode}
+\renewcommand{\@todonotes@text}{#2}%
+\renewcommand{\@todonotes@caption}{#2}%
+\setkeys{todonotes}{#1}%
+%    \end{macrocode}
+% If the option |disable| is given to the command, no output is generated.
+%    \begin{macrocode}
+\if@todonotes@localdisable%
+\else%
+%    \end{macrocode}
+% Add the item to the list of todos. When the option
+% |colorinlistoftodos| is given to the package a small colored 
+% square is added in front of the text.
+%    \begin{macrocode}
+\addtocounter{@todonotes@numberoftodonotes}{1}%
+\if@todonotes@appendtolistoftodos%
+    \phantomsection%
+    \if@todonotes@captiongiven%
+    \else%
+        \renewcommand{\@todonotes@caption}{#2}%
+    \fi%
+    \@todonotes@addElementToListOfTodos%
+\fi%
+%    \end{macrocode}
+% Prepend the short caption given if it is requested
+%    \begin{macrocode}
+\if@todonotes@captiongiven%
+    \if@todonotes@prependcaption%
+        \renewcommand{\@todonotes@text}{\@todonotes@caption: #2}%
+    \fi%
+\fi%
+%    \end{macrocode}
+% Place the todonote as indicated by the options (inline or in a
+% marginpar), below is the code for the inline placement.
+%    \begin{macrocode}
+\if@todonotes@inlinenote%
+    \@todonotes@drawInlineNote%
+\else%
+    \@todonotes@drawMarginNoteWithLine%
+\fi%\if@todonotes@inlinenote
+\fi%\if@todonotes@localdisable
+}%
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\@todo}
+%   Command that draws normal notes.
+%    \begin{macrocode}
+\newcommand{\@todo}[2][]{%
+    \@todonotes@areaselectedfalse%
+    \@todocommon{#1}{#2}%
+}%
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\@todoarea}
+%   Command that draws notes that highlight a certain area in text.
+%    \begin{macrocode}
+\newcommand{\@todoarea}[3][]{%
+    \@todonotes@areaselectedtrue%
+    \@todocommon{#1}{#2}%
+    \todonotes@textmark@highlight{#3}%
+%    \end{macrocode}
+% Mark the end of the highlighted area with a Tikz coordinate.
+% The begin is marked by |\@todocommon|.
+%    \begin{macrocode}
+    \begin{tikzpicture}[remember picture, overlay]%
+        \node [coordinate] (@todonotes@\arabic{@todonotes@numberoftodonotes} %
+            inTextEnd) {};%
+    \end{tikzpicture}%
+    \zref@label{@todonotes@\arabic{@todonotes@numberoftodonotes}@end}%
+}%
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{drawMarginNoteWithLine}
+% Define helper function |drawMarginNoteWithLine|.
+%    \begin{macrocode}
+\newcommand{\@todonotes@drawMarginNoteWithLine}{%
+%    \end{macrocode}
+% When the todonote should be placed inside a marginpar, the code
+% below is applied.
+% First is the current location in the document stored, this enables
+% us later to connect this point with the inserted todonote.
+%    \begin{macrocode}
+    \begin{tikzpicture}[remember picture, overlay]%
+        \node [coordinate] (@todonotes@\arabic{@todonotes@numberoftodonotes} %
+            inText) {};%
+    \end{tikzpicture}%
+%    \end{macrocode}
+% Update the dimensions to be accessed by Lua.
+%    \begin{macrocode}
+    \@todonotes@baselineskip=\baselineskip%
+    \@todonotes@fontsize=\f@size pt%
+%    \end{macrocode}
+% Place a label at the site.
+% We use this to query the page number, on which the note was placed.
+%    \begin{macrocode}
+    \zref@label{@todonotes@\arabic{@todonotes@numberoftodonotes}}%
+%    \end{macrocode}
+% Append author before the note text if one is given.
+%    \begin{macrocode}
+    \if@todonotes@authorgiven%
+        \let\@todonotes@text@old=\@todonotes@text
+        \renewcommand{\@todonotes@text}{\@todonotes@author: \@todonotes@text@old}%
+    \fi%
+%    \end{macrocode}
+% We use edef here to get these macros fully expanded.
+% After that we write them to a toks register and read them from Lua.
+%    \begin{macrocode}
+    \edef\@todonotes@tmp{\@todonotes@currentlinecolor}%
+    \@todonotes@toks@currentlinecolor=\expandafter{\@todonotes@tmp}%
+    \edef\@todonotes@tmp{\@todonotes@currentbackgroundcolor}%
+    \@todonotes@toks@currentbackgroundcolor=\expandafter{\@todonotes@tmp}%
+    \edef\@todonotes@tmp{\@todonotes@currentbordercolor}%
+    \@todonotes@toks@currentbordercolor=\expandafter{\@todonotes@tmp}%
+    \edef\@todonotes@tmp{\@todonotes@currentleaderwidth}%
+    \@todonotes@toks@currentleaderwidth=\expandafter{\@todonotes@tmp}%
+%    \end{macrocode}
+% We cannot fully expand the size command (using |\edef| causes errors when
+% compiling).
+%    \begin{macrocode}
+    \@todonotes@toks@sizecommand=\expandafter{\@todonotes@sizecommand}%
+%    \end{macrocode}
+% We store the text that should be shown in this note into a box and copy this
+% box to a variable in Lua.
+%    \begin{macrocode}
+    \savebox\@todonotes@notetextbox{\@todonotes@sizecommand\@todonotes@text}%
+%    \end{macrocode}
+% Prepare parameters and add the note to the list in Lua.
+%    \begin{macrocode}
+    \if@todonotes@line%
+        \def\@todonotes@param@drawLeader{true}%
+    \else%
+        \def\@todonotes@param@drawLeader{false}%
+    \fi%
+    \if@todonotes@areaselected%
+        \def\@todonotes@param@noteType{area}%
+    \else%
+        \def\@todonotes@param@noteType{}%
+    \fi%
+    \directlua{addNoteToList(\arabic{@todonotes@numberoftodonotes},%
+        \@todonotes@param@drawLeader,\luastringO{\@todonotes@param@noteType})}%
+}%
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{addElementToListOfTodos}
+% Define helper function |addElementToListOfTodos|.
+%    \begin{macrocode}
+\newcommand{\@todonotes@addElementToListOfTodos}{%
+    \if@todonotes@colorinlistoftodos%
+        \addcontentsline{tdo}{todo}{%
+            \fcolorbox{\@todonotes@currentbordercolor}%
+                {\@todonotes@currentbackgroundcolor}%
+                {\textcolor{\@todonotes@currentbackgroundcolor}{o}}%
+            \ \@todonotes@caption}%
+    \else%
+        \addcontentsline{tdo}{todo}{\@todonotes@caption}%
+    \fi}%
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{drawInlineNote}
+% Define helper function |drawInlineNote|.
+%    \begin{macrocode}
+\newcommand{\@todonotes@drawInlineNote}{%
+    {\par\noindent\begin{tikzpicture}[remember picture]%
+        \draw node[@todonotes@inlinenote,font=\@todonotes@sizecommand]{%
+            \if@todonotes@authorgiven%
+                {\noindent \@todonotes@sizecommand %
+                    \@todonotes@author:\,\@todonotes@text}%
+            \else%
+                {\noindent \@todonotes@sizecommand \@todonotes@text}%
+            \fi};%
+        \end{tikzpicture}\par}%
+    }%
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\missingfigure}
+% Defines the |\missingfigure| macro.
+%    \begin{macrocode}
+\newcommand{\missingfigure}[2][]{%
+\setkeys{todonotes}{#1}%
+\addcontentsline{tdo}{todo}{\@todonotes@MissingFigureText: #2}%
+\par
+\noindent
+\begin{tikzpicture}
+\draw[fill=black!40, draw = white, line width=0pt] 
+    (-2, -2.5) rectangle +(\@todonotes@currentfigwidth, \@todonotes@currentfigheight);
+\draw (2, -0.3) node[right, text
+    width=\@todonotes@currentfigwidth-4.5cm] {#2};
+\draw[red, fill=white, rounded corners = 5pt, line width=10pt] 
+    (30:2cm) -- (150:2cm) -- (270:2cm) -- cycle;
+\draw (0, 0.3) node {\@todonotes@MissingFigureUp};
+\draw (0, -0.3) node {\@todonotes@MissingFigureDown};
+\end{tikzpicture}
+}% Ending \missingfigure command
+\fi % Ending \@todonotes@ifdisabled
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\todototoc}
+% Inserts a reference to the list of todos in the table of contents. If |chapter| is defined, 
+% |chapter| is used as level otherwise will |section| be used.
+% The |\todototoc| command respects the disable option.
+%    \begin{macrocode}
+\newcommand{\todototoc}
+{
+    \if@todonotes@disabled
+    \else
+    \addcontentsline{toc}{\@ifundefined{chapter}{section}{chapter}}{\@todonotes@todolistname}
+    \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\todo}
+% Define the |\todo| command as a redirection to |\@todo|.
+%    \begin{macrocode}
+\newcommand{\todo}[2][]{\@bsphack\@todo[#1]{#2}\@esphack\ignorespaces}%
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\todoarea}
+% Define the |\todoarea| command as a redirection to |\@todoarea|.
+% We don't want to ignore spaces after this command.
+%    \begin{macrocode}
+\newcommand{\todoarea}[3][]{\@bsphack\@todoarea[#1]{#2}{#3}\@esphack}%
+%    \end{macrocode}
+% \end{macro}
+% The following commands are executed when a page is complete and is written to
+% the output PDF (shipout in \TeX\ terms).
+% The |\AtBeginShipout| command is provided by package atbegshi.
+%    \begin{macrocode}
+\if@todonotes@disabled
+\else
+\AtBeginShipout{%
+%    \end{macrocode}
+% We draw to the foreground or background of the page (depending if debug option
+% is set for the package).
+%    \begin{macrocode}
+    \@todonotes@AtBeginShipoutUpperLeft{
+        \@todonotes@writeNextpageToLpo
+%    \end{macrocode}
+% Determine if we are on a left or on a right side (important for margins) and
+% set variables accordingly.
+% |\relax| seems to be needed at end to really write new value for
+% currentsidemargin.
+%    \begin{macrocode}
+        \checkoddpage%
+        \ifoddpageoroneside%
+            \@todonotes@currentsidemargin=\the\oddsidemargin%
+            \directlua{currentPageOdd = true}%
+        \else%
+            \@todonotes@currentsidemargin=\the\evensidemargin%
+            \directlua{currentPageOdd = false}%
+        \fi\relax%
+%    \end{macrocode}
+% We switch to the default catcodes of \LaTeX\ here.
+% This is important if catcodes are changed in the main text, e.\,g., by a
+% verbatim environment at the end of the page.
+%    \begin{macrocode}
+        \BeginCatcodeRegime\CatcodeTableLaTeX
+%    \end{macrocode}
+% Calculates the areas, in which the labels can be placed.
+% This calculation depends on currentsidemargin.
+% So this has to be done inside |\AtBeginShipoutUpperLeft| (otherwise odd/even
+% page detection won't work).
+%    \begin{macrocode}
+        \directlua{calcLabelAreaDimensions()}%
+%    \end{macrocode}
+% Calculates the needed height for every note.
+% This has to be outside of the tikzpicture because it uses a savebox to compute
+% the height.
+% This box does not work in the tikzpicture.
+%    \begin{macrocode}
+        \directlua{calcHeightsForNotes()}% has to be outside of tikzpicture
+        \begin{tikzpicture}[remember picture,overlay]
+%    \end{macrocode}
+% Reads the absolute coordinates of every note on the page and writes them to
+% the Lua objects.
+%    \begin{macrocode}
+            \directlua{getInputCoordinatesForNotes()}
+%    \end{macrocode}
+% Runs the positioning algorithm and actually draws the notes and leaders.
+%    \begin{macrocode}
+            \directlua{printNotes()}
+        \end{tikzpicture}%
+%    \end{macrocode}
+% Delete the drawn notes from the Lua lists and prepare for the next page.
+%    \begin{macrocode}
+        \directlua{clearNotes()}%
+        \EndCatcodeRegime
+    }%
+}
+\fi % Ending \@todonotes@ifdisabled
+%    \end{macrocode}
+%
+% \newpage
+% \Finale
+\endinput
+
