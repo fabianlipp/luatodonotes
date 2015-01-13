@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{841}
+% \CheckSum{840}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -780,8 +780,27 @@
 %
 % \newpage
 % \section{Implementation}
+% In this section only the source code of the LaTeX package file
+% (|luatodonotes.sty|) is shown.
+% The Lua code is contained in |luatodonotes.lua| and documented by comments
+% inside these files.
+% These comments are primarily describing technical aspects.
+% Information about the implemented algorithms and some theoretical
+% considerations can be found in the following documents:
+% \begin{itemize}
+%   \item Kindermann, P., Lipp, F., and Wolff, A.:
+%     Luatodonotes: Boundary Labeling for Annotations in Texts.
+%     In: Duncan, C. and Symvonis, A. (eds.) Proc. 22nd Int. Sympos. Graph Drawing GD'14.
+%     LNCS, vol. 8871, pp. 76-88. Springer, Heidelberg (2014)
+%     \url{http://dx.doi.org/10.1007/978-3-662-45803-7_7}
+%   \item Lipp, F.:
+%     Boundary Labeling for Annotations in Texts.
+%     Master thesis, 2014.
+%     \url{http://www1.informatik.uni-wuerzburg.de/pub/theses/2014-lipp-master.pdf}
+% \end{itemize}
 %
-% Identifies the package and loads the packages dependences.
+% \subsection{Dependencies and definitions}
+% Loads the packages dependencies.
 %    \begin{macrocode}
 \RequirePackage{ifthen}
 \RequirePackage{xkeyval}
