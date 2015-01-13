@@ -37,7 +37,7 @@
 \usepackage{setspace}
 \usepackage{soul}
 \setcounter{tocdepth}{2}
-\EnableCrossrefs         
+\EnableCrossrefs
 \CodelineIndex
 \RecordChanges
 \begin{document}
@@ -74,7 +74,8 @@
 % displayed multiple times when used in \texttt{\textbackslash blockquote}
 % command)}
 % \changes{0.2}{2015/01/13}{Fix wrong linespacing when changing fontsize}
-% \GetFileInfo{luatodonotes.dtx}   
+% \changes{0.2}{2015/01/13}{Included suggestions from CTAN submission}
+% \GetFileInfo{luatodonotes.dtx}
 %
 % \DoNotIndex{\newcommand,\newenvironment}
 %
@@ -127,13 +128,13 @@
 % 
 % Some alternatives for the luatodonotes package are:
 % \begin{itemize}
-% \item \href{http://www.ctan.org/tex-archive/macros/latex/contrib/easy-todo}{easy-todo}\\
+% \item \href{http://www.ctan.org/pkg/easy-todo}{easy-todo}\\
 % Depends on |color|, |tocloft| and |ifthen|, small feature set.
 % \item \href{http://www.ctan.org/pkg/fixmetodonotes}{fixmetodonotes}\\
 % Depends on |graphicx|, |color|, |transparent|, |watermark|, |fix-cm|, |ulem| and |tocloft|, small feature set.
-% \item \href{http://www.ctan.org/tex-archive/macros/latex/contrib/todo}{todo}\\
+% \item \href{http://www.ctan.org/pkg/todo}{todo}\\
 % Depends on |amssymb|, medium feature set.
-% \item \href{http://www.ctan.org/tex-archive/macros/latex/contrib/fixme}{fixme}\\
+% \item \href{http://www.ctan.org/pkg/fixme}{fixme}\\
 % Large package with a lot of features.
 % \item \href{http://www.ctan.org/pkg/todonotes}{todonotes}
 % \end{itemize}
@@ -151,9 +152,9 @@
 % |\marginpar|.
 %
 % The main reason for considering other packages is that the todonotes 
-% package is quire large and relies heavily on tikz.
+% package is quite large and relies heavily on tikz.
 % This can slow down compilation of large documents significantly.
-% The mentioned alternatives have a different feature set and does not 
+% The mentioned alternatives have a different feature set and do not 
 % rely on tikz, which makes them require less ressoureces.
 %
 %
@@ -743,8 +744,8 @@
 % only newer versions of latex driver for tikz supports the
 % |remember picture| option.
 % For additional info consult 
-% ''Section 9.2.2 Producing PDF Output'' in the tikz manual. 
-% \url{http://www.ctan.org/tex-archive/graphics/pgf/base/doc/generic/pgf/pgfmanual.pdf}
+% ''Section 10.2.2 Producing PDF Output'' in the tikz manual. 
+% \url{http://mirror.ctan.org/graphics/pgf/base/doc/pgfmanual.pdf}
 %
 %
 %

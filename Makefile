@@ -9,15 +9,18 @@ CLEAN := \
 	luatodonotes.ilg \
 	luatodonotes.ind \
 	luatodonotes.toc \
+	luatodonotes.upa \
+	luatodonotes.upb \
 	luatodonotes.fls \
 	luatodonotes.fdb_latexmk \
 	luatodonotes.synctex.gz
 
 DISTCLEAN := \
 	luatodonotes.sty \
-	luatodonotes.pdf
+	luatodonotes.pdf \
+	luatodonotes.zip
 
-default: luatodonotes.pdf
+default: luatodonotes.pdf luatodonotes.zip
 
 luatodonotes.pdf: luatodonotes.sty luatodonotes.dtx
 	lualatex luatodonotes.dtx
@@ -25,6 +28,8 @@ luatodonotes.pdf: luatodonotes.sty luatodonotes.dtx
 	makeindex -s gind.ist -o luatodonotes.ind luatodonotes.idx
 	lualatex luatodonotes.dtx
 	lualatex luatodonotes.dtx
+
+luatodonotes.zip: luatodonotes.pdf luatodonotes.dtx luatodonotes.ins
 	rm -rf luatodonotes
 	mkdir luatodonotes
 	cp luatodonotes.ins luatodonotes/luatodonotes.ins
@@ -35,6 +40,7 @@ luatodonotes.pdf: luatodonotes.sty luatodonotes.dtx
 	cp path_point.lua luatodonotes/path_point.lua
 	cp inspect.lua luatodonotes/inspect.lua
 	cp README.md luatodonotes/README
+	chmod a+r -R luatodonotes
 	zip -r luatodonotes.zip luatodonotes
 
 luatodonotes.sty: luatodonotes.ins luatodonotes.dtx
