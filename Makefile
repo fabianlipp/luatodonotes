@@ -39,7 +39,7 @@ luatodonotes.zip: luatodonotes.pdf luatodonotes.dtx luatodonotes.ins
 	cp path_line.lua luatodonotes/path_line.lua
 	cp path_point.lua luatodonotes/path_point.lua
 	cp inspect.lua luatodonotes/inspect.lua
-	cp README.md luatodonotes/README
+	cp README.md luatodonotes/README.md
 	chmod a+r -R luatodonotes
 	zip -r luatodonotes.zip luatodonotes
 
