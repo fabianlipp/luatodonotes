@@ -257,6 +257,7 @@ function addNoteToList(index, drawLeader, noteType)
     newNote.backgroundColor = tex.toks["@todonotes@toks@currentbackgroundcolor"]
     newNote.borderColor = tex.toks["@todonotes@toks@currentbordercolor"]
     newNote.leaderWidth = tex.toks["@todonotes@toks@currentleaderwidth"]
+    newNote.sizeCommand = tex.toks["@todonotes@toks@sizecommand"]
     newNote.drawLeader = drawLeader
     if noteType == "area" then
         newNote.noteType = "area"
@@ -528,13 +529,15 @@ function printNotes()
             print("backgroundColor:" .. v.backgroundColor)
             print("borderColor:  " .. v.borderColor)
             print("leaderWidth:  " .. v.leaderWidth)
+            print("sizeCommand:  " .. v.sizeCommand)
             print("drawLeader:   " .. tostring(v.drawLeader))
         end
 
         -- print note
         tex.print(catcodeStart)
         tex.print("\\node[@todonotes@notestyle,anchor=north west," ..
-            "fill=" .. v.backgroundColor .. ",draw=" .. v.borderColor .. "] " ..
+            "fill=" .. v.backgroundColor .. ",draw=" .. v.borderColor .. "," ..
+            "font=" .. v.sizeCommand .. "] " ..
             "(@todonotes@" .. v.index ..
             " note) at (" .. v.outputX .. "sp," .. v.outputY .. "sp) {" ..
             v:boxForNoteText(v.rightSide) .. "};")

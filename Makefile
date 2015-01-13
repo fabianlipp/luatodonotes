@@ -34,7 +34,7 @@ luatodonotes.pdf: luatodonotes.sty luatodonotes.dtx
 	cp path_line.lua luatodonotes/path_line.lua
 	cp path_point.lua luatodonotes/path_point.lua
 	cp inspect.lua luatodonotes/inspect.lua
-	cp README luatodonotes/README
+	cp README.md luatodonotes/README
 	zip -r luatodonotes.zip luatodonotes
 
 luatodonotes.sty: luatodonotes.ins luatodonotes.dtx
