@@ -1,16 +1,20 @@
 # luatodonotes
-This package allows you to insert comments for further editing in your document.
-The comments are shown in the margins besides the text.
-Different styles for the comments can be used, which can be configured using
-package options.
-This package depends heavily on Lua, so it can only be used with LuaLaTeX.
+The package allows the user to insert comments into a document that
+suggest (for example) further editing that may be needed.
 
-luatodonotes is based on the todonotes package by Henrik Skov Midtiby
-(http://www.ctan.org/pkg/todonotes).
+The comments are shown in the margins alongside the text; different styles
+for the comments may be used; the styles are selected using package
+options.
+
+The package is based on the package todonotes by Henrik Skov Midtiby
+(http://www.ctan.org/pkg/todonotes), and depends heavily on Lua,
+so it can only be used with LuaLaTeX.
+
 
 ## Installation
 Run `latex luatodonotes.ins` to generate the package files and copy the listed
 files into your TEXMF tree.
+
 
 ## Development
 The latest source code is available on Github:  
