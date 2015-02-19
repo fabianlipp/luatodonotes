@@ -643,9 +643,11 @@ end
 -- page to the output file (streamId is taken from lpoFileStream) at the
 -- beginning of every line
 -- should be called as post_linebreak_filter
+local ID_GLYPH_NODE = node.id("glyph")
+local ID_HLIST_NODE = node.id("hlist")
 function callbackOutputLinePositions(head)
     while head do
-        if head.id == 0 then -- id 0 is a hlist
+        if head.id == ID_HLIST_NODE then
             -- check if we are in the main text area (hlists in, e.g.,
             -- tikz nodes should have other widths)
             if head.width == tex.dimen.textwidth then
@@ -654,7 +656,7 @@ function callbackOutputLinePositions(head)
                 local foundGlyph = false
                 local glyphTest = head.head
                 while glyphTest do
-                    if glyphTest.id == 37 then -- glyph
+                    if glyphTest.id == ID_GLYPH_NODE then
                         foundGlyph = true
                         break
                     end
