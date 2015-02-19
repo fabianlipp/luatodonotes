@@ -41,6 +41,7 @@ luatodonotes.zip: luatodonotes.pdf luatodonotes.dtx luatodonotes.ins
 	cp inspect.lua luatodonotes/inspect.lua
 	cp README.md luatodonotes/README.md
 	chmod a+r -R luatodonotes
+	chmod a+x luatodonotes
 	zip -r luatodonotes.zip luatodonotes
 
 luatodonotes.sty: luatodonotes.ins luatodonotes.dtx
@@ -54,9 +55,11 @@ luatodonotes.gls: luatodonotes.glo
 	#pdflatex todonotesexample.tex
 	#okular todonotesexample.pdf 
 
-clean: 
+.PHONY: clean
+clean:
 	@rm -f $(CLEAN)
 
+.PHONY: distclean
 distclean: clean
 	@rm -f $(DISTCLEAN)
 
