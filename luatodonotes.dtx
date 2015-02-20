@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{840}
+% \CheckSum{844}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1670,9 +1670,19 @@
     \@todonotes@toks@sizecommand=\expandafter{\@todonotes@sizecommand}%
 %    \end{macrocode}
 % We store the text that should be shown in this note into a box and copy this
-% box to a variable in Lua.
+% box to a variable in Lua. The commands |\@parboxrestore|, |\@marginparreset|,
+% |\@minipagefalse| and |\outer@nobreak| are copied from the definition of
+% |\marginpar| in \LaTeX 2e to reset font settings, for example.
+% This is important when a note is placed inside a theorem environment.
+% \changes{0.2}{2015/02/20}{Reset font settings at begin of a todo note}
 %    \begin{macrocode}
-    \savebox\@todonotes@notetextbox{\@todonotes@sizecommand\@todonotes@text}%
+    \savebox\@todonotes@notetextbox{%
+        \@parboxrestore
+        \@marginparreset
+        \@todonotes@sizecommand\@todonotes@text%
+        \@minipagefalse
+        \outer@nobreak
+    }%
 %    \end{macrocode}
 % Prepare parameters and add the note to the list in Lua.
 %    \begin{macrocode}
