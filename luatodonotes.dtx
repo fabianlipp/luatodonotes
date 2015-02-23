@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{844}
+% \CheckSum{851}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -800,6 +800,17 @@
 % \end{itemize}
 %
 % \subsection{Dependencies and definitions}
+% Check if Lua\TeX{} is used.
+% \changes{0.2}{2015/02/23}{Check if LuaTeX is used at begin of package}
+%    \begin{macrocode}
+\RequirePackage{ifluatex}
+\ifluatex\else
+  \PackageError{luatodonotes}{LuaTeX is required for this package. Aborting.}{%
+    This package can only be used with the LuaTeX engine\MessageBreak
+    (command `lualatex'). Package loading has been stopped\MessageBreak
+    to prevent additional errors.}
+\fi
+%    \end{macrocode}
 % Loads the packages dependencies.
 %    \begin{macrocode}
 \RequirePackage{ifthen}
