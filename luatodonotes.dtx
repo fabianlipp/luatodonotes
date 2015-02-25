@@ -1211,52 +1211,12 @@
 \directlua{rasterHeight =
     string.todimen("\luatexluaescapestring{\@todonotes@rasterHeight}")}
 %    \end{macrocode}
-% Set the variable for the positioning algorithm depending on the corresponding
-% package option.
+% Set the variables for the used algorithms and leader types depending on the
+% corresponding package options.
 %    \begin{macrocode}
-\IfStrEqCase{\@todonotes@positioning}{%
-    {inText}{\directlua{positioning = positioningAlgos["inText"]}}%
-    {inputOrder}{\directlua{positioning = positioningAlgos["inputOrder"]}}%
-    {inputOrderStacks}{\directlua{positioning =
-        positioningAlgos["inputOrderStacks"]}}%
-    {sLeaderNorthEast}{\directlua{positioning =
-        positioningAlgos["sLeaderNorthEast"]}}%
-    {sLeaderNorthEastBelow}{\directlua{positioning =
-        positioningAlgos["sLeaderNorthEastBelow"]}}%
-    {sLeaderEast}{\directlua{positioning =
-        positioningAlgos["sLeaderEast"]}}%
-    {poLeaders}{\directlua{positioning = positioningAlgos["poLeaders"]}}%
-    {poLeadersAvoidLines}{\directlua{positioning =
-        positioningAlgos["poLeadersAvoidLines"]}}%
-    {sLeaderNorthEastBelowStacks}{\directlua{positioning =
-        positioningAlgos["sLeaderNorthEastBelowStacks"]}}}%
-    [\directlua{positioning = positioningAlgos["inputOrderStacks"]}
-    \PackageWarningNoLine{luatodonotes}
-        {Invalid value for parameter positioning: \@todonotes@positioning}]
-%    \end{macrocode}
-% Set the variable for the splitting algorithm depending on the corresponding
-% package option.
-%    \begin{macrocode}
-\IfStrEqCase{\@todonotes@splitting}{%
-    {none}{\directlua{splitting = splittingAlgos["none"]}}%
-    {middle}{\directlua{splitting = splittingAlgos["middle"]}}%
-    {median}{\directlua{splitting = splittingAlgos["median"]}}%
-    {weightedMedian}{\directlua{splitting = splittingAlgos["weightedMedian"]}}}%
-    [\directlua{splitting = splittingAlgos["none"]}
-    \PackageWarningNoLine{luatodonotes}
-        {Invalid value for parameter split: \@todonotes@splitting}]
-%    \end{macrocode}
-% Specify the requested leader type.
-%    \begin{macrocode}
-\IfStrEqCase{\@todonotes@leadertype}{%
-    {s}{\directlua{leaderType = leaderTypes["s"]}}%
-    {opo}{\directlua{leaderType = leaderTypes["opo"]}}%
-    {po}{\directlua{leaderType = leaderTypes["po"]}}%
-    {sBezier}{\directlua{leaderType = leaderTypes["sBezier"]}}%
-    {os}{\directlua{leaderType = leaderTypes["os"]}}}%
-    [\directlua{leaderType = leaderTypes["opo"]}
-    \PackageWarningNoLine{luatodonotes}
-        {Invalid value for parameter leadertype: \@todonotes@leadertype}]
+\directlua{luatodonotes.setPositioningAlgo("\luatexluaescapestring{\@todonotes@positioning}")}
+\directlua{luatodonotes.setSplittingAlgo("\luatexluaescapestring{\@todonotes@splitting}")}
+\directlua{luatodonotes.setLeaderType("\luatexluaescapestring{\@todonotes@leadertype}")}
 %    \end{macrocode}
 % The following commands are used to detect the absolute positions of lines on
 % the page.

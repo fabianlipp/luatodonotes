@@ -22,6 +22,7 @@ local pathLine = require'path_line'
 --local bezier3 = require'path_bezier3'
 
 -- TODO Funktionen/Variablen in Namespace o. Ä. packen
+luatodonotes = {}
 
 -- strings used to switch to standard catcodes for LaTeX packages
 local catcodeStart = "\\makeatletter"
@@ -44,12 +45,41 @@ local const1In = string.todimen("1in") -- needed for calculations of page border
 
 
 -- stores information about available algorithms
-positioningAlgos = {}
-splittingAlgos = {}
-leaderTypes = {}
+local positioningAlgos = {}
+local splittingAlgos = {}
+local leaderTypes = {}
+
+local positioning = nil
+local splitting = nil
+local leaderType = nil
+function luatodonotes.setPositioningAlgo(algo)
+    if positioningAlgos[algo] ~= nil then
+        positioning = positioningAlgos[algo]
+    else
+        positioning = positioningAlgos["inputOrderStacks"]
+        tex.print("\\PackageWarningNoLine{luatodonotes}{Invalid value for parameter positioning: " .. algo .. "}")
+    end
+end
+function luatodonotes.setSplittingAlgo(algo)
+    if splittingAlgos[algo] ~= nil then
+        splitting = splittingAlgos[algo]
+    else
+        splitting = splittingAlgos["none"]
+        tex.print("\\PackageWarningNoLine{luatodonotes}{Invalid value for parameter split: " .. algo .. "}")
+    end
+end
+function luatodonotes.setLeaderType(typ)
+    if leaderTypes[typ] ~= nil then
+        leaderType = leaderTypes[typ]
+    else
+        leaderType = leaderTypes["opo"]
+        tex.print("\\PackageWarningNoLine{luatodonotes}{Invalid value for parameter leadertype: " .. typ .. "}")
+    end
+end
 
 -- stores the notes for the current page
-notesForPage = {}
+luatodonotes.notesForPage = {}
+local notesForPage = luatodonotes.notesForPage
 -- Fields for each note:
 -- index: numbers notes in whole document
 -- indexOnPage: index of the note in the notesForPage array
@@ -149,7 +179,7 @@ function noteMt:boxForNoteText(rightSide)
         noteWidth = area.noteWidth - 2*noteInnerSep
     end
     local retval = "\\directlua{tex.box[\"@todonotes@notetextbox\"] = " ..
-        "node.copy_list(notesForPage[" .. self.indexOnPage .. "].textbox)}"
+        "node.copy_list(luatodonotes.notesForPage[" .. self.indexOnPage .. "].textbox)}"
     retval = retval .. "\\parbox{" .. noteWidth .. "sp}" ..
         "{\\raggedright\\unhbox\\@todonotes@notetextbox}"
     return retval
@@ -275,7 +305,8 @@ function clearNotes()
     for _, v in pairs(notesForPage) do
         node.free(v.textbox)
     end
-    notesForPage = notesForNextPage
+    luatodonotes.notesForPage = notesForNextPage
+    notesForPage = luatodonotes.notesForPage
     -- update indexOnPage for the new notes
     for k, v in pairs(notesForPage) do
         v.indexOnPage = k
@@ -330,9 +361,9 @@ function getInputCoordinatesForNotes()
             nodename .. "}{center}}")
         tex.sprint("\\pgfextracty{\\@todonotes@extracty}{\\pgfpointanchor{" ..
             nodename .. "}{center}}")
-        tex.print("\\directlua{notesForPage[" .. k .. "].origInputX = " ..
+        tex.print("\\directlua{luatodonotes.notesForPage[" .. k .. "].origInputX = " ..
             "tex.dimen[\"@todonotes@extractx\"]}")
-        tex.print("\\directlua{notesForPage[" .. k .. "].origInputY = " ..
+        tex.print("\\directlua{luatodonotes.notesForPage[" .. k .. "].origInputY = " ..
             "tex.dimen[\"@todonotes@extracty\"]}")
 
         if v.noteType == "area" then
@@ -341,9 +372,9 @@ function getInputCoordinatesForNotes()
                 nodename .. "}{center}}")
             tex.sprint("\\pgfextracty{\\@todonotes@extracty}{\\pgfpointanchor{" ..
                 nodename .. "}{center}}")
-            tex.print("\\directlua{notesForPage[" .. k .. "].origInputEndX = " ..
+            tex.print("\\directlua{luatodonotes.notesForPage[" .. k .. "].origInputEndX = " ..
                 "tex.dimen[\"@todonotes@extractx\"]}")
-            tex.print("\\directlua{notesForPage[" .. k .. "].origInputEndY = " ..
+            tex.print("\\directlua{luatodonotes.notesForPage[" .. k .. "].origInputEndY = " ..
                 "tex.dimen[\"@todonotes@extracty\"]}")
 
             notesForPage[k].linesInArea = {}
@@ -351,7 +382,7 @@ function getInputCoordinatesForNotes()
                 nodename = "@todonotes@" .. v.index .. "@" .. i .. " areaSW"
                     tex.sprint("\\pgfextracty{\\@todonotes@extracty}{\\pgfpointanchor{" ..
                         nodename .. "}{center}}")
-                tex.print("\\directlua{notesForPage[" .. k .. "].linesInArea[" ..
+                tex.print("\\directlua{luatodonotes.notesForPage[" .. k .. "].linesInArea[" ..
                     i .. "] = " .. "tex.dimen[\"@todonotes@extracty\"]}")
             end
         end
@@ -414,7 +445,7 @@ function calcHeightsForNotes()
             "{" .. v:boxForNoteText(false) .. "}")
         tex.sprint("\\@todonotes@heightcalcboxdepth=\\dp\\@todonotes@heightcalcbox")
         tex.sprint("\\@todonotes@heightcalcboxheight=\\ht\\@todonotes@heightcalcbox")
-        tex.sprint("\\directlua{notesForPage[" .. k .. "].heightLeft = " ..
+        tex.sprint("\\directlua{luatodonotes.notesForPage[" .. k .. "].heightLeft = " ..
             "tex.dimen[\"@todonotes@heightcalcboxheight\"]" ..
             " + tex.dimen[\"@todonotes@heightcalcboxdepth\"]}")
 
@@ -423,16 +454,16 @@ function calcHeightsForNotes()
             "{" .. v:boxForNoteText(true) .. "}")
         tex.sprint("\\@todonotes@heightcalcboxdepth=\\dp\\@todonotes@heightcalcbox")
         tex.sprint("\\@todonotes@heightcalcboxheight=\\ht\\@todonotes@heightcalcbox")
-        tex.sprint("\\directlua{notesForPage[" .. k .. "].heightRight = " ..
+        tex.sprint("\\directlua{luatodonotes.notesForPage[" .. k .. "].heightRight = " ..
             "tex.dimen[\"@todonotes@heightcalcboxheight\"]" ..
             " + tex.dimen[\"@todonotes@heightcalcboxdepth\"]}")
 
         -- store pageNr for note
         -- (is determined as reference to a label)
-        tex.sprint("\\directlua{notesForPage[" .. k .. "].pageNr = " ..
+        tex.sprint("\\directlua{luatodonotes.notesForPage[" .. k .. "].pageNr = " ..
             "\\zref@extract{@todonotes@" .. v.index .. "}{abspage}}")
         if v.noteType == "area" then
-            tex.sprint("\\directlua{notesForPage[" .. k .. "].pageNrEnd = " ..
+            tex.sprint("\\directlua{luatodonotes.notesForPage[" .. k .. "].pageNrEnd = " ..
                 "\\zref@extract{@todonotes@" .. v.index .. "@end}{abspage}}")
         end
     end
