@@ -1233,10 +1233,10 @@
 % thus can collect the line positions in a Lua table.
 %    \begin{macrocode}
 \newcommand{\@todonotes@lineposition}[3]{%
-    \directlua{linePositionsAddLine(#1,#2,#3)}%
+    \directlua{luatodonotes.linePositionsAddLine(#1,#2,#3)}%
 }
 \newcommand{\@todonotes@nextpage}{%
-    \directlua{linePositionsNextPage()}%
+    \directlua{luatodonotes.linePositionsNextPage()}%
 }%
 %    \end{macrocode}
 % The following macro is used in \texttt{AtBeginShipout} to signal in the
@@ -1266,7 +1266,7 @@
 % Initialise the script when all Lua variables are set according to the package
 % options.
 %    \begin{macrocode}
-\directlua{initTodonotes()}
+\directlua{luatodonotes.initTodonotes()}
 %    \end{macrocode}
 % Some definitions to highlight areas in text.
 % The first command is needed to accept control spaces (|\ |) in arguments for
@@ -1295,7 +1295,7 @@
         {% last line of area
         \def\todonotes@textmark@decoRight{}%
         \addtolength\todonotes@textmark@width{2pt}%
-        \directlua{processLastLineInTodoArea()}}%
+        \directlua{luatodonotes.processLastLineInTodoArea()}}%
         {\def\todonotes@textmark@decoRight{@todonotes@todoarea}%
         \addtolength\todonotes@textmark@width{4pt}}%
     \newcommand{\@todonotes@nodeNamePrefix}%
@@ -1667,7 +1667,7 @@
     \else%
         \def\@todonotes@param@noteType{}%
     \fi%
-    \directlua{addNoteToList(\arabic{@todonotes@numberoftodonotes},%
+    \directlua{luatodonotes.addNoteToList(\arabic{@todonotes@numberoftodonotes},%
         \@todonotes@param@drawLeader,\luastringO{\@todonotes@param@noteType})}%
 }%
 %    \end{macrocode}
@@ -1792,29 +1792,29 @@
 % So this has to be done inside |\AtBeginShipoutUpperLeft| (otherwise odd/even
 % page detection won't work).
 %    \begin{macrocode}
-        \directlua{calcLabelAreaDimensions()}%
+        \directlua{luatodonotes.calcLabelAreaDimensions()}%
 %    \end{macrocode}
 % Calculates the needed height for every note.
 % This has to be outside of the tikzpicture because it uses a savebox to compute
 % the height.
 % This box does not work in the tikzpicture.
 %    \begin{macrocode}
-        \directlua{calcHeightsForNotes()}% has to be outside of tikzpicture
+        \directlua{luatodonotes.calcHeightsForNotes()}% has to be outside of tikzpicture
         \begin{tikzpicture}[remember picture,overlay]
 %    \end{macrocode}
 % Reads the absolute coordinates of every note on the page and writes them to
 % the Lua objects.
 %    \begin{macrocode}
-            \directlua{getInputCoordinatesForNotes()}
+            \directlua{luatodonotes.getInputCoordinatesForNotes()}
 %    \end{macrocode}
 % Runs the positioning algorithm and actually draws the notes and leaders.
 %    \begin{macrocode}
-            \directlua{printNotes()}
+            \directlua{luatodonotes.printNotes()}
         \end{tikzpicture}%
 %    \end{macrocode}
 % Delete the drawn notes from the Lua lists and prepare for the next page.
 %    \begin{macrocode}
-        \directlua{clearNotes()}%
+        \directlua{luatodonotes.clearNotes()}%
         \EndCatcodeRegime
     }%
 }

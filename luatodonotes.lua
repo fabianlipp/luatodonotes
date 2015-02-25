@@ -260,9 +260,9 @@ end
 
 
 -- is called by the sty-file when all settings (algorithms etc.) are made
-function initTodonotes()
+function luatodonotes.initTodonotes()
     if positioning.needLinePositions then
-        luatexbase.add_to_callback("post_linebreak_filter", callbackOutputLinePositions, "outputLinePositions")
+        luatexbase.add_to_callback("post_linebreak_filter", luatodonotes.callbackOutputLinePositions, "outputLinePositions")
         tex.print("\\@starttoc{lpo}")
         tex.print("\\directlua{lpoFileStream = \\the\\tf@lpo}")
     end
@@ -270,7 +270,7 @@ end
 
 
 -- valid values for noteType: nil/"" (for point in text), "area"
-function addNoteToList(index, drawLeader, noteType)
+function luatodonotes.addNoteToList(index, drawLeader, noteType)
     if next(notesForPage) ~= nil
         and index == notesForPage[#notesForPage].index then
         -- Index is the same as for the previous note.
@@ -299,7 +299,7 @@ function addNoteToList(index, drawLeader, noteType)
     notesForPage[newNote.indexOnPage] = newNote
 end
 
-function clearNotes()
+function luatodonotes.clearNotes()
     -- delete the texts for the notes on this page from memory
     -- (garbage collection does not work for nodes)
     for _, v in pairs(notesForPage) do
@@ -315,7 +315,7 @@ function clearNotes()
     currentPage = currentPage + 1
 end
 
-function processLastLineInTodoArea()
+function luatodonotes.processLastLineInTodoArea()
     -- LaTeX counter is accessed as TeX count by prefixing c@
     ind = tex.count["c@@todonotes@numberoftodonotes"]
     val = tex.count["c@@todonotes@numberofLinesInArea"]
@@ -324,35 +324,19 @@ end
 
 
 -- *** constructing the linePositions list ***
-function linePositionsNextPage()
+function luatodonotes.linePositionsNextPage()
     linePositionsPageNr = linePositionsPageNr + 1
     linePositionsCurPage = {}
     linePositions[linePositionsPageNr] = linePositionsCurPage
 end
 
-function linePositionsAddLine(ycoord, lineheight, linedepth)
+function luatodonotes.linePositionsAddLine(ycoord, lineheight, linedepth)
     local baseline = ycoord - tex.pageheight
     linePositionsCurPage[#linePositionsCurPage + 1] = {baseline, baseline + lineheight, baseline - linedepth}
 end
 
--- DEBUG
-function markLines()
-    print("marking lines for page " .. currentPage)
-    if linePositions[currentPage] ~= nil then
-        for _, v in pairs(linePositions[currentPage]) do
-            --local yPos = - (tex.pageheight - v[1])
-            local yPos = v[3]
-            local yTop = v[2]
-            tex.print("\\draw[red] (10cm," .. yPos .."sp) circle(3pt);")
-            tex.print("\\fill[red] (10cm," .. yPos .."sp) circle(1pt);")
-            tex.print("\\draw[green] (2cm," .. yTop .."sp) -- ++(17cm,0);")
-            tex.print("\\draw[blue] (2cm," .. yPos .."sp) -- ++(17cm,0);")
-        end
-    end
-end
 
-
-function getInputCoordinatesForNotes()
+function luatodonotes.getInputCoordinatesForNotes()
     tex.sprint(catcodeStart)
     for k, v in ipairs(notesForPage) do
         local nodename = "@todonotes@" .. v.index .. " inText"
@@ -390,7 +374,7 @@ function getInputCoordinatesForNotes()
     tex.sprint(catcodeEnd)
 end
 
-function calcLabelAreaDimensions()
+function luatodonotes.calcLabelAreaDimensions()
     local routingAreaSpace = 0
     if leaderType.needRoutingArea then
         routingAreaSpace = routingAreaWidth
@@ -433,7 +417,7 @@ function calcLabelAreaDimensions()
     labelArea.text = text
 end
 
-function calcHeightsForNotes()
+function luatodonotes.calcHeightsForNotes()
     -- function has to be called outside of a tikzpicture-environment
     tex.sprint(catcodeStart)
     for k, v in ipairs(notesForPage) do
@@ -471,7 +455,7 @@ function calcHeightsForNotes()
 end
 
 local inputShiftX = string.todimen("-0.05cm") -- sensible value depends on shape of mark
-function printNotes()
+function luatodonotes.printNotes()
     print("drawing labels for page " .. currentPage)
 
     -- seperate notes that should be placed on another page
@@ -634,25 +618,25 @@ end
 -- * comparators for table.sort() *
 -- (yields true if first parameter should be placed before second parameter in
 -- sorted table)
-function compareNoteInputXAsc(note1, note2)
+local function compareNoteInputXAsc(note1, note2)
     if note1.inputX < note2.inputX then
         return true
     end
 end
 
-function compareNoteIndInputXAsc(key1, key2)
+local function compareNoteIndInputXAsc(key1, key2)
     if notesForPage[key1].inputX < notesForPage[key2].inputX then
         return true
     end
 end
 
-function compareNoteIndInputXDesc(key1, key2)
+local function compareNoteIndInputXDesc(key1, key2)
     if notesForPage[key1].inputX > notesForPage[key2].inputX then
         return true
     end
 end
 
-function compareNoteIndInputYDesc(key1, key2)
+local function compareNoteIndInputYDesc(key1, key2)
     local v1 = notesForPage[key1]
     local v2 = notesForPage[key2]
     if v1.inputY > v2.inputY then
@@ -665,7 +649,7 @@ function compareNoteIndInputYDesc(key1, key2)
 end
 
 -- * callbacks for Luatex *
-function appendStrToTokenlist(tokenlist, str)
+local function appendStrToTokenlist(tokenlist, str)
     str:gsub(".", function(c)
         tokenlist[#tokenlist + 1] = {12, c:byte(), 0}
     end)
@@ -676,7 +660,7 @@ end
 -- should be called as post_linebreak_filter
 local ID_GLYPH_NODE = node.id("glyph")
 local ID_HLIST_NODE = node.id("hlist")
-function callbackOutputLinePositions(head)
+function luatodonotes.callbackOutputLinePositions(head)
     while head do
         if head.id == ID_HLIST_NODE then
             -- check if we are in the main text area (hlists in, e.g.,
