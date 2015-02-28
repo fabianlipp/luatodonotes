@@ -41,7 +41,19 @@ local const1In = string.todimen("1in") -- needed for calculations of page border
 -- + distanceNotesPageBorder (distance from the page borders to the outmost point
 --     of the labels)
 -- + distanceNotesText (horizontal distance between the labels and the text area)
+-- + rasterHeight (height of raster for po leader algorithm)
 -- + todonotesDebug (activate debug outputs when true)
+--
+-- values are filled into local variables in function initTodonotes (from
+-- corresponding fields luatodonotes.*)
+local noteInnerSep = nil
+local noteInterSpace = nil
+local routingAreaWidth = nil
+local minNoteWidth = nil
+local distanceNotesPageBorder = nil
+local distanceNotesText = nil
+local rasterHeight = nil
+local todonotesDebug = nil
 
 
 -- stores information about available algorithms
@@ -259,8 +271,35 @@ end
 
 
 
+-- divides notes in two lists (for left and right side)
+-- side must be stored in note.rightSide for every note before using this function
+local function segmentNotes(notes)
+    local availableNotesLeft = {}
+    local availableNotesRight = {}
+    for k, v in pairs(notes) do
+        if v.rightSide == true then
+            table.insert(availableNotesRight, k)
+        else
+            table.insert(availableNotesLeft, k)
+        end
+    end
+    return availableNotesLeft, availableNotesRight
+end
+
+
+
 -- is called by the sty-file when all settings (algorithms etc.) are made
 function luatodonotes.initTodonotes()
+    -- fill local variables (defined at begin of file) with package options
+    noteInnerSep = luatodonotes.noteInnerSep
+    noteInterSpace = luatodonotes.noteInterSpace
+    routingAreaWidth = luatodonotes.routingAreaWidth
+    minNoteWidth = luatodonotes.minNoteWidth
+    distanceNotesPageBorder = luatodonotes.distanceNotesPageBorder
+    distanceNotesText = luatodonotes.distanceNotesText
+    rasterHeight = luatodonotes.rasterHeight
+    todonotesDebug = luatodonotes.todonotesDebug
+
     if positioning.needLinePositions then
         luatexbase.add_to_callback("post_linebreak_filter", luatodonotes.callbackOutputLinePositions, "outputLinePositions")
         tex.print("\\@starttoc{lpo}")
@@ -736,7 +775,7 @@ end
 
 -- ********** Leader Drawing Algorithms **********
 
-function drawLeaderPath(note, path)
+local function drawLeaderPath(note, path)
     if note.drawLeader == false then
         return
     end
@@ -759,7 +798,7 @@ end
 
 
 -- ** leader drawing: s-leaders
-function drawSLeaders()
+local function drawSLeaders()
     for k, v in ipairs(notesForPage) do
         drawLeaderPath(v, v:getLabelAnchorTikz() ..
             " -- " .. v:getInTextAnchorTikz())
@@ -770,14 +809,14 @@ leaderTypes["s"] = {algo = drawSLeaders}
 
 
 -- ** leader drawing: opo-leaders
-function drawOpoLeader(v, opoShift, rightSide)
+local function drawOpoLeader(v, opoShift, rightSide)
     if rightSide then
         opoShift = - opoShift
     end
     drawLeaderPath(v, v:getLabelAnchorTikz() .. " -- +(" .. opoShift .. "sp,0) " ..
         "|- " .. v:getInTextAnchorTikz())
 end
-function drawOpoGroup(group, directionDown, rightSide)
+local function drawOpoGroup(group, directionDown, rightSide)
     if directionDown == nil then
         for _, v2 in ipairs(group) do
             drawOpoLeader(notesForPage[v2], 0, rightSide)
@@ -808,7 +847,7 @@ function drawOpoGroup(group, directionDown, rightSide)
         end
     end
 end
-function drawOpoLeadersSide(notes, rightSide)
+local function drawOpoLeadersSide(notes, rightSide)
     table.sort(notes, compareNoteIndInputYDesc)
 
     local lastDirectionDown = nil
@@ -847,7 +886,7 @@ function drawOpoLeadersSide(notes, rightSide)
     end
     drawOpoGroup(group, lastDirectionDown, rightSide)
 end
-function drawOpoLeaders()
+local function drawOpoLeaders()
     local notesLeft, notesRight = segmentNotes(notesForPage)
     if #notesLeft > 0 then
         drawOpoLeadersSide(notesLeft, false)
@@ -862,7 +901,7 @@ leaderTypes["opo"] = {algo = drawOpoLeaders,
 
 
 -- ** leader drawing: po-leaders
-function drawPoLeaders()
+local function drawPoLeaders()
     for _, v in ipairs(notesForPage) do
         drawLeaderPath(v, v:getLabelAnchorTikz() .. " -| " .. v:getInTextAnchorTikz())
     end
@@ -872,7 +911,7 @@ leaderTypes["po"] = {algo = drawPoLeaders}
 
 
 -- ** leader drawing: os-leaders
-function drawOsLeaders()
+local function drawOsLeaders()
     for _, v in ipairs(notesForPage) do
         local cornerX
         if v.rightSide then
@@ -905,7 +944,7 @@ factorRepulsiveControlPoint = 1
 factorAttractingControlPoint = 1
 stopCondition = 65536 -- corresponds to 1pt
 
-function constructCurve(l)
+local function constructCurve(l)
     local curve = {}
 
     -- site
@@ -930,60 +969,7 @@ function constructCurve(l)
 
     return curve
 end
-function computeRepulsiveControlPointForces()
-    for k1, l1 in pairs(notesForPage) do
-        for k2, l2 in pairs(notesForPage) do
-            if k1 ~= k2 then
-                -- curves of the leaders
-                local curve1 = constructCurve(l1)
-                local curve2 = constructCurve(l2)
-
-                local distance = checkCurveApproximation(curve1, curve2);
-
-                -- check if R1 has to be increased or decreased to increase the distance of the 2 curves
-                -- if curve1 is bent into the direction of curve2, R1 has to be decreased
-                local actualR = math.abs(labelArea:getXTextSide(l1.rightSide) - l1.movableControlPointX)
-                if ((l1.inputY < l1.leaderArmY and
-                        l2.leaderArmY < l1.leaderArmY) or
-                        (l1.inputY > l1.leaderArmY and
-                        l2.leaderArmY > l1.leaderArmY)) then
-                    -- R1 has to be increased
-                    local desiredR = math.abs(labelArea:getXTextSide(l1.rightSide) - l1.optimalPositionX)
-                    local diff = math.abs(desiredR - actualR)
-                    if distance == 0 then
-                        distance = 0.01
-                    end
-                    local force = diff / distance
-                    local newForce = force * factorRepulsiveControlPoint
-                    l1.currentForce = l1.currentForce + newForce
-                    l1.forceLimitDec = math.min(l1.forceLimitDec, distance * 0.45)
-                else
-                    -- R1 has to be decreased
-                    if distance == 0 then
-                        distance = 0.01
-                    end
-                    local force = actualR / distance
-                    local newForce = -force * factorRepulsiveControlPoint
-                    l1.currentForce = l1.currentForce + newForce
-                    local oldLim = l1.forceLimitInc
-                    l1.forceLimitInc = math.min(l1.forceLimitInc, distance * 0.45)
-                    --if oldLim ~= l1.forceLimitInc then
-                        --print(k1 .. ": Reduced forceLimitInc from " .. oldLim .. " to " .. l1.forceLimitInc .. " because of " .. k2 .. " (distance: " .. distance .. ")")
-                    --end
-                end
-            end
-        end
-    end
-end
-function computeAttractingControlPointForces()
-    for _, l in pairs(notesForPage) do
-        local desiredR = math.abs(labelArea:getXTextSide(l.rightSide) - l.optimalPositionX)
-        local actualR = math.abs(labelArea:getXTextSide(l.rightSide) - l.movableControlPointX)
-        local newForce = (desiredR - actualR) * factorAttractingControlPoint
-        l.currentForce = l.currentForce + newForce
-    end
-end
-function getPointOnCurve(t, curve)
+local function getPointOnCurve(t, curve)
     if #curve ~= 4 then
         error("4 points needed for a Bezier-curve. Given size was: " .. #curve)
     end
@@ -1000,7 +986,21 @@ function getPointOnCurve(t, curve)
 
     return x, y
 end
-function checkCurveApproximation(curve1, curve2)
+local function getDistance(line1, line2)
+    local t1, t2 = pathLine.line_line_intersection(line1.x1, line1.y1, line1.x2, line1.y2,
+            line2.x1, line2.y1, line2.x2, line2.y2)
+    if 0 <= t1 and t1 <= 1 and 0 <= t2 and t2 <= 1 then
+        -- the lines do intersect
+        return 0
+    end
+
+    local d1 = pathLine.hit(line2.x1, line2.y1, line1.x1, line1.y1, line1.x2, line1.y2)
+    local d2 = pathLine.hit(line2.x2, line2.y2, line1.x1, line1.y1, line1.x2, line1.y2)
+    local d3 = pathLine.hit(line1.x1, line1.y1, line2.x1, line2.y1, line2.x2, line2.y2)
+    local d4 = pathLine.hit(line1.x2, line1.y2, line2.x1, line2.y1, line2.x2, line2.y2)
+    return math.sqrt(math.min(d1, d2, d3, d4))
+end
+local function checkCurveApproximation(curve1, curve2)
     -- these lists will contain the sections of the approximation of the two curves
     local sectionsCurve1 = {}
     local sectionsCurve2 = {}
@@ -1052,21 +1052,60 @@ function checkCurveApproximation(curve1, curve2)
 
     return minDistance
 end
-function getDistance(line1, line2)
-    local t1, t2 = pathLine.line_line_intersection(line1.x1, line1.y1, line1.x2, line1.y2,
-            line2.x1, line2.y1, line2.x2, line2.y2)
-    if 0 <= t1 and t1 <= 1 and 0 <= t2 and t2 <= 1 then
-        -- the lines do intersect
-        return 0
-    end
+local function computeRepulsiveControlPointForces()
+    for k1, l1 in pairs(notesForPage) do
+        for k2, l2 in pairs(notesForPage) do
+            if k1 ~= k2 then
+                -- curves of the leaders
+                local curve1 = constructCurve(l1)
+                local curve2 = constructCurve(l2)
 
-    local d1 = pathLine.hit(line2.x1, line2.y1, line1.x1, line1.y1, line1.x2, line1.y2)
-    local d2 = pathLine.hit(line2.x2, line2.y2, line1.x1, line1.y1, line1.x2, line1.y2)
-    local d3 = pathLine.hit(line1.x1, line1.y1, line2.x1, line2.y1, line2.x2, line2.y2)
-    local d4 = pathLine.hit(line1.x2, line1.y2, line2.x1, line2.y1, line2.x2, line2.y2)
-    return math.sqrt(math.min(d1, d2, d3, d4))
+                local distance = checkCurveApproximation(curve1, curve2);
+
+                -- check if R1 has to be increased or decreased to increase the distance of the 2 curves
+                -- if curve1 is bent into the direction of curve2, R1 has to be decreased
+                local actualR = math.abs(labelArea:getXTextSide(l1.rightSide) - l1.movableControlPointX)
+                if ((l1.inputY < l1.leaderArmY and
+                        l2.leaderArmY < l1.leaderArmY) or
+                        (l1.inputY > l1.leaderArmY and
+                        l2.leaderArmY > l1.leaderArmY)) then
+                    -- R1 has to be increased
+                    local desiredR = math.abs(labelArea:getXTextSide(l1.rightSide) - l1.optimalPositionX)
+                    local diff = math.abs(desiredR - actualR)
+                    if distance == 0 then
+                        distance = 0.01
+                    end
+                    local force = diff / distance
+                    local newForce = force * factorRepulsiveControlPoint
+                    l1.currentForce = l1.currentForce + newForce
+                    l1.forceLimitDec = math.min(l1.forceLimitDec, distance * 0.45)
+                else
+                    -- R1 has to be decreased
+                    if distance == 0 then
+                        distance = 0.01
+                    end
+                    local force = actualR / distance
+                    local newForce = -force * factorRepulsiveControlPoint
+                    l1.currentForce = l1.currentForce + newForce
+                    local oldLim = l1.forceLimitInc
+                    l1.forceLimitInc = math.min(l1.forceLimitInc, distance * 0.45)
+                    --if oldLim ~= l1.forceLimitInc then
+                        --print(k1 .. ": Reduced forceLimitInc from " .. oldLim .. " to " .. l1.forceLimitInc .. " because of " .. k2 .. " (distance: " .. distance .. ")")
+                    --end
+                end
+            end
+        end
+    end
 end
-function applyForces(v)
+local function computeAttractingControlPointForces()
+    for _, l in pairs(notesForPage) do
+        local desiredR = math.abs(labelArea:getXTextSide(l.rightSide) - l.optimalPositionX)
+        local actualR = math.abs(labelArea:getXTextSide(l.rightSide) - l.movableControlPointX)
+        local newForce = (desiredR - actualR) * factorAttractingControlPoint
+        l.currentForce = l.currentForce + newForce
+    end
+end
+local function applyForces(v)
     --print("force on note " .. v.index .. ": " .. v.currentForce .. " (limit: +" .. v.forceLimitInc .. ", -" .. v.forceLimitDec .. ")")
 
     -- limit the force so the movable control point is between the port and the optimal position
@@ -1100,7 +1139,7 @@ function applyForces(v)
     v.currentForce = 0
     return c
 end
-function getAngle(centerX, centerY, x, y)
+local function getAngle(centerX, centerY, x, y)
     local vectorX = x - centerX
     local vectorY = y - centerY
     local length = math.sqrt((vectorX ^ 2) + (vectorY ^ 2))
@@ -1117,7 +1156,7 @@ function getAngle(centerX, centerY, x, y)
 
     return degAngle
 end
-function solveQuadraticEquation(a, b, c)
+local function solveQuadraticEquation(a, b, c)
     local discr = (b * b) - (4 * a * c)
 
     if discr < 0 then
@@ -1137,7 +1176,7 @@ function solveQuadraticEquation(a, b, c)
         return solution1
     end
 end
-function computeOptimalPosition(v)
+local function computeOptimalPosition(v)
     local distance = point.distance(v.inputX, v.inputY, labelArea:getXTextSide(v.rightSide), v.leaderArmY)
 
     -- the angle at the port between the point and the movable control point
@@ -1171,7 +1210,7 @@ function computeOptimalPosition(v)
         v.optimalPositionX = labelArea:getXTextSide(v.rightSide) + r
     end
 end
-function drawSBezierLeaders()
+local function drawSBezierLeaders()
     for _, v in pairs(notesForPage) do
         -- initialise leader
         v.leaderArmY = v:getLabelAnchorY()
@@ -1247,26 +1286,11 @@ leaderTypes["sBezier"] = {algo = drawSBezierLeaders}
 
 -- ** helper functions
 
--- divides notes in two lists (for left and right side)
--- side must be stored in note.rightSide for every note before using this function
-function segmentNotes(notes)
-    local availableNotesLeft = {}
-    local availableNotesRight = {}
-    for k, v in pairs(notes) do
-        if v.rightSide == true then
-            table.insert(availableNotesRight, k)
-        else
-            table.insert(availableNotesLeft, k)
-        end
-    end
-    return availableNotesLeft, availableNotesRight
-end
-
 -- finds the index in the list given as parameter with the minimum angle
 -- the function used for computation of the angle is given as second parameter
 -- (the alphaFormula gets the note, to which the angle should be computed, as
 -- the only parameter)
-function findIndexMinAlpha(availableNotesIndex, alphaFormula)
+local function findIndexMinAlpha(availableNotesIndex, alphaFormula)
     local minAlpha = math.huge -- infinity
     local minIndex = -1
 
@@ -1284,7 +1308,7 @@ end
 
 
 -- ** partition into stacks
-function getMeanYHeight(stack)
+local function getMeanYHeight(stack)
     -- TODO: Alternative: nicht das arithmetische Mittel verwenden, sondern
     -- Mittelpunkt zwischen dem obersten und untersten Punkt
     local sumY = 0
@@ -1305,7 +1329,7 @@ function getMeanYHeight(stack)
     end
     return meanY, height
 end
-function stacksIntersect(stackTop, stackBottom)
+local function stacksIntersect(stackTop, stackBottom)
     local topMeanY, topHeight = getMeanYHeight(stackTop)
     local topLower = topMeanY - topHeight/2
 
@@ -1318,7 +1342,7 @@ function stacksIntersect(stackTop, stackBottom)
         return false
     end
 end
-function findStacks(notesOnSide)
+local function findStacks(notesOnSide)
     local notes = table.copy(notesOnSide)
     table.sort(notes, compareNoteIndInputYDesc)
 
@@ -1354,7 +1378,7 @@ end
 
 
 -- ** positioning: inText
-function posInText()
+local function posInText()
     -- trivial algorithm
     -- places notes in text on position where todo-command was issued
     for k, v in ipairs(notesForPage) do
@@ -1369,22 +1393,8 @@ positioningAlgos["inText"] = {algo = posInText,
 
 
 
--- ** positioning: inputOrder
--- start at top and place notes below each other on left/right side
--- notes are placed in the order induced by their y-coordinates
-function posInputOrder(notes, rightSide)
-    table.sort(notes, compareNoteIndInputYDesc)
-    placeNotesInputOrder(notes, labelArea:getArea(rightSide).top, rightSide)
-end
-positioningAlgos["inputOrder"] = {algo = posInputOrder,
-    leaderAnchor = "east",
-    leaderShift = false,
-    twoSided = true}
-
-
-
 -- ** positioning: inputOrderStacks
-function placeNotesInputOrder(stack, yStart, rightSide)
+local function placeNotesInputOrder(stack, yStart, rightSide)
     local freeY = yStart
 
     for _, k in ipairs(stack) do
@@ -1394,7 +1404,7 @@ function placeNotesInputOrder(stack, yStart, rightSide)
         freeY = freeY - v:getHeight() - 2 * noteInnerSep - noteInterSpace
     end
 end
-function posInputOrderStacks(notesOnSide, rightSide)
+local function posInputOrderStacks(notesOnSide, rightSide)
     table.sort(notesOnSide, compareNoteIndInputYDesc)
 
     local stacks = findStacks(notesOnSide)
@@ -1413,8 +1423,22 @@ positioningAlgos["inputOrderStacks"] = {algo = posInputOrderStacks,
 
 
 
+-- ** positioning: inputOrder
+-- start at top and place notes below each other on left/right side
+-- notes are placed in the order induced by their y-coordinates
+local function posInputOrder(notes, rightSide)
+    table.sort(notes, compareNoteIndInputYDesc)
+    placeNotesInputOrder(notes, labelArea:getArea(rightSide).top, rightSide)
+end
+positioningAlgos["inputOrder"] = {algo = posInputOrder,
+    leaderAnchor = "east",
+    leaderShift = false,
+    twoSided = true}
+
+
+
 -- ** positioning: sLeaderNorthEast
-function posSLeaderNorthEast(notes, rightSide)
+local function posSLeaderNorthEast(notes, rightSide)
     local noteY = labelArea:getArea(rightSide).top
 
     local alphaFormula
@@ -1450,7 +1474,7 @@ positioningAlgos["sLeaderNorthEast"] = {algo = posSLeaderNorthEast,
 
 
 -- ** positioning: sLeaderNorthEastBelow
-function placeNotesNorthEastBelow(stack, yStart, rightSide)
+local function placeNotesNorthEastBelow(stack, yStart, rightSide)
     -- calculate minimum height of all notes
     local minHeight = math.huge -- (infinity)
     for _, v in pairs(stack) do
@@ -1489,7 +1513,7 @@ function placeNotesNorthEastBelow(stack, yStart, rightSide)
         table.remove(availableNotes, minIndex)
     end
 end
-function posSLeaderNorthEastBelow(notes, rightSide)
+local function posSLeaderNorthEastBelow(notes, rightSide)
     placeNotesNorthEastBelow(notes, labelArea:getArea(rightSide).top, rightSide)
 end
 positioningAlgos["sLeaderNorthEastBelow"] = {algo = posSLeaderNorthEastBelow,
@@ -1500,7 +1524,7 @@ positioningAlgos["sLeaderNorthEastBelow"] = {algo = posSLeaderNorthEastBelow,
 
 
 -- ** positioning: sLeaderNorthEastBelowStacks
-function posSLeaderNorthEastBelowStacks(notesOnSide, rightSide)
+local function posSLeaderNorthEastBelowStacks(notesOnSide, rightSide)
     local stacks = findStacks(notesOnSide)
 
     -- place stacks
@@ -1518,7 +1542,7 @@ positioningAlgos["sLeaderNorthEastBelowStacks"] = {algo = posSLeaderNorthEastBel
 
 
 -- ** positioning: sLeaderEast
-function posSLeaderEast(notes, rightSide)
+local function posSLeaderEast(notes, rightSide)
     local leaderPosY
     local noteY = labelArea:getArea(rightSide).top
 
@@ -1661,13 +1685,13 @@ positioningAlgos["sLeaderEast"] = {algo = posSLeaderEast,
 
 
 -- ** positioning: poLeaders
-function getRasterAbsolute(rasterHeight, top, rasterIndex)
+local function getRasterAbsolute(rasterHeight, top, rasterIndex)
     return top - (rasterIndex - 1) * rasterHeight
 end
  -- distance between line and leader that algorithm tries to reach when there is
  -- no neighbouring line
 local poMinDistLine = string.todimen("4pt")
-function getPosAboveLine(linePositionsCurPage, lineInd)
+local function getPosAboveLine(linePositionsCurPage, lineInd)
     local line = linePositionsCurPage[lineInd]
     local posAbove
     if linePositionsCurPage[lineInd - 1] ~= nil then
@@ -1678,7 +1702,7 @@ function getPosAboveLine(linePositionsCurPage, lineInd)
     end
     return posAbove
 end
-function getPosBelowLine(linePositionsCurPage, lineInd)
+local function getPosBelowLine(linePositionsCurPage, lineInd)
     local line = linePositionsCurPage[lineInd]
     local posBelow
     if linePositionsCurPage[lineInd + 1] ~= nil then
@@ -1689,7 +1713,7 @@ function getPosBelowLine(linePositionsCurPage, lineInd)
     end
     return posBelow
 end
-function posPoLeaders(notes, rightSide, avoidLines)
+local function posPoLeaders(notes, rightSide, avoidLines)
     print("rasterHeight: " .. rasterHeight)
 
     local linePositionsCurPage
@@ -2052,7 +2076,7 @@ positioningAlgos["poLeaders"] = {algo = posPoLeaders,
     leaderShift = false,
     twoSided = true}
 
-function posPoLeadersAvoid(notes, rightSide)
+local function posPoLeadersAvoid(notes, rightSide)
     posPoLeaders(notes, rightSide, true)
 end
 positioningAlgos["poLeadersAvoidLines"] = {algo = posPoLeadersAvoid,
@@ -2068,7 +2092,7 @@ positioningAlgos["poLeadersAvoidLines"] = {algo = posPoLeadersAvoid,
 
 -- ** splittingAlgorithm: none
 -- place all notes on the wider side
-function splitNone()
+local function splitNone()
     local rightSideSelected = false
     if labelArea.left == nil and labelArea.right == nil then
         error("Cannot place labels on any side of text (not enough space). " ..
@@ -2091,7 +2115,7 @@ splittingAlgos["none"] = {algo = splitNone}
 
 -- ** splittingAlgorithm: middle
 -- split on middle of page
-function splitMiddle()
+local function splitMiddle()
     if labelArea:isOneSided() then
         splitNone()
     else
@@ -2111,7 +2135,7 @@ splittingAlgos["middle"] = {algo = splitMiddle}
 
 -- ** splittingAlgorithm: median
 -- split at median (sites sorted by x-coordinate)
-function splitMedian()
+local function splitMedian()
     if labelArea:isOneSided() then
         splitNone()
     else
@@ -2149,7 +2173,7 @@ splittingAlgos["median"] = {algo = splitMedian}
 -- ** splittingAlgorithm: weightedMedian
 -- split at weighted median (sites sorted by x-coordinate)
 -- sum of heights of labels on both sides are similiar to each other
-function splitWeightedMedian()
+local function splitWeightedMedian()
     if labelArea:isOneSided() then
         splitNone()
     else

@@ -75,6 +75,8 @@
 % command)}
 % \changes{0.2}{2015/01/13}{Fix wrong linespacing when changing fontsize}
 % \changes{0.2}{2015/01/13}{Included suggestions from CTAN submission}
+% \changes{0.2}{2015/02/28}{Make Lua variables and functions local or put them
+% into luatodonotes array (don't pollute global namespace)}
 % \GetFileInfo{luatodonotes.dtx}
 %
 % \DoNotIndex{\newcommand,\newenvironment}
@@ -1196,19 +1198,19 @@
 %    \end{macrocode}
 % Setting variables to values given by package options.
 %    \begin{macrocode}
-\directlua{noteInnerSep =
+\directlua{luatodonotes.noteInnerSep =
     string.todimen("\luatexluaescapestring{\@todonotes@noteInnerSep}")}
-\directlua{noteInterSpace =
+\directlua{luatodonotes.noteInterSpace =
     string.todimen("\luatexluaescapestring{\@todonotes@interNoteSpace}")}
-\directlua{routingAreaWidth =
+\directlua{luatodonotes.routingAreaWidth =
     string.todimen("\luatexluaescapestring{\@todonotes@routingAreaWidth}")}
-\directlua{minNoteWidth =
+\directlua{luatodonotes.minNoteWidth =
     string.todimen("\luatexluaescapestring{\@todonotes@minNoteWidth}")}
-\directlua{distanceNotesPageBorder =
+\directlua{luatodonotes.distanceNotesPageBorder =
     string.todimen("\luatexluaescapestring{\@todonotes@distanceNotesPageBorder}")}
-\directlua{distanceNotesText =
+\directlua{luatodonotes.distanceNotesText =
     string.todimen("\luatexluaescapestring{\@todonotes@distanceNotesText}")}
-\directlua{rasterHeight =
+\directlua{luatodonotes.rasterHeight =
     string.todimen("\luatexluaescapestring{\@todonotes@rasterHeight}")}
 %    \end{macrocode}
 % Set the variables for the used algorithms and leader types depending on the
@@ -1254,11 +1256,11 @@
 % debug mode.
 %    \begin{macrocode}
 \if@todonotes@debugenabled
-    \directlua{todonotesDebug = true}
+    \directlua{luatodonotes.todonotesDebug = true}
     \newcommand{\@todonotes@AtBeginShipoutUpperLeft}
         {\AtBeginShipoutUpperLeftForeground}
 \else
-    \directlua{todonotesDebug = false}
+    \directlua{luatodonotes.todonotesDebug = false}
     \newcommand{\@todonotes@AtBeginShipoutUpperLeft}
         {\AtBeginShipoutUpperLeft}
 \fi
@@ -1775,10 +1777,8 @@
         \checkoddpage%
         \ifoddpageoroneside%
             \@todonotes@currentsidemargin=\the\oddsidemargin%
-            \directlua{currentPageOdd = true}%
         \else%
             \@todonotes@currentsidemargin=\the\evensidemargin%
-            \directlua{currentPageOdd = false}%
         \fi\relax%
 %    \end{macrocode}
 % We switch to the default catcodes of \LaTeX\ here.
