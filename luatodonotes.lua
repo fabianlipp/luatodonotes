@@ -113,6 +113,7 @@ local notesForPage = luatodonotes.notesForPage
 -- backgroundColor: color of background of note
 -- borderColor: color of border of note
 -- leaderWidth: width of leader (used as argument for tikz line width)
+-- sizeCommand: fontsize command given as parameter for this note
 --
 -- Additional fields for text area:
 -- noteType: constant string "area"
@@ -465,7 +466,7 @@ function luatodonotes.calcHeightsForNotes()
 
         -- left side
         tex.sprint("\\savebox{\\@todonotes@heightcalcbox}" ..
-            "{" .. v:boxForNoteText(false) .. "}")
+            "{" .. v.sizeCommand .. v:boxForNoteText(false) .. "}")
         tex.sprint("\\@todonotes@heightcalcboxdepth=\\dp\\@todonotes@heightcalcbox")
         tex.sprint("\\@todonotes@heightcalcboxheight=\\ht\\@todonotes@heightcalcbox")
         tex.sprint("\\directlua{luatodonotes.notesForPage[" .. k .. "].heightLeft = " ..
@@ -474,7 +475,7 @@ function luatodonotes.calcHeightsForNotes()
 
         -- right side
         tex.sprint("\\savebox{\\@todonotes@heightcalcbox}" ..
-            "{" .. v:boxForNoteText(true) .. "}")
+            "{" .. v.sizeCommand .. v:boxForNoteText(true) .. "}")
         tex.sprint("\\@todonotes@heightcalcboxdepth=\\dp\\@todonotes@heightcalcbox")
         tex.sprint("\\@todonotes@heightcalcboxheight=\\ht\\@todonotes@heightcalcbox")
         tex.sprint("\\directlua{luatodonotes.notesForPage[" .. k .. "].heightRight = " ..
