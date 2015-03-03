@@ -939,10 +939,10 @@ leaderTypes["os"] = {algo = drawOsLeaders,
 --   forceLimitInc
 
 -- settings for algorithm
-maxIterations = 1000
-factorRepulsiveControlPoint = 1
-factorAttractingControlPoint = 1
-stopCondition = 65536 -- corresponds to 1pt
+local maxIterations = 1000
+local factorRepulsiveControlPoint = 1
+local factorAttractingControlPoint = 1
+local stopCondition = 65536 -- corresponds to 1pt
 
 local function constructCurve(l)
     local curve = {}
