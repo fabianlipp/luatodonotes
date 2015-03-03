@@ -21,7 +21,6 @@ local point = require'path_point'
 local pathLine = require'path_line'
 --local bezier3 = require'path_bezier3'
 
--- TODO Funktionen/Variablen in Namespace o. Ä. packen
 luatodonotes = {}
 
 -- strings used to switch to standard catcodes for LaTeX packages
@@ -544,7 +543,7 @@ function luatodonotes.printNotes()
         if todonotesDebug then
             local function outputWithPoints(val)
                 if val ~= nil then
-                    return val .. " (" .. number.topoints(val) .. ")"
+                    return val .. " (" .. number.topoints(val, "%s%s") .. ")"
                 else
                     return ""
                 end
@@ -2050,8 +2049,8 @@ local function posPoLeaders(notes, rightSide, avoidLines)
         -- DEBUG on page
         if todonotesDebug then
             tex.print("\\node[text=blue,fill=white,rectangle,align=center] at (10.5cm,-27cm) {" ..
-                "total length: " .. number.tocentimeters(length) .. "\\\\ " ..
-                "rasterHeight: " .. number.tocentimeters(rasterHeight) ..
+                "total length: " .. number.tocentimeters(length, "%s%s") .. "\\\\ " ..
+                "rasterHeight: " .. number.tocentimeters(rasterHeight, "%s%s") ..
                 "};")
         end
 
