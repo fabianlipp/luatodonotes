@@ -1,5 +1,5 @@
 %%
-%% Copyright (C) 2014 by Fabian Lipp <fabian.lipp@gmx.de>
+%% Copyright (C) 2014-2015 by Fabian Lipp <fabian.lipp@gmx.de>
 %% based on the todonotes package by
 %%   Henrik Skov Midtiby <henrikmidtiby@gmail.com>
 %%
@@ -17,7 +17,7 @@
 \input docstrip.tex
 \keepsilent
 
-\usedir{tex/latex/luatodonotes}
+\usedir{tex/lualatex/luatodonotes}
 
 \preamble
 
@@ -41,6 +41,7 @@ and version 1.2 or later is part of all distributions of LaTeX version
 
 \generate{\file{luatodonotes.sty}{\from{luatodonotes.dtx}{package}}}
 
+\catcode`~=11\relax % needed to write ~ in the following message
 \obeyspaces
 \Msg{*************************************************************}
 \Msg{*                                                           *}
@@ -52,6 +53,15 @@ and version 1.2 or later is part of all distributions of LaTeX version
 \Msg{*     path_line.lua                                         *}
 \Msg{*     path_point.lua                                        *}
 \Msg{*     inspect.lua                                           *}
+\Msg{*                                                           *}
+\Msg{* A suitable directory would be                             *}
+\Msg{* texmf/tex/lualatex/luatodonotes                           *}
+\Msg{* in your local texmf-tree. For example, on a Linux system  *}
+\Msg{* with TeX Live you can find the texmf-directory in your    *}
+\Msg{* home directory under ~/texmf or system-wide under         *}
+\Msg{* /usr/share/texmf.                                         *}
+\Msg{* Don't forget to run texhash after copying the files (as   *}
+\Msg{* root if installed system-wide).                           *}
 \Msg{*                                                           *}
 \Msg{* To produce the documentation run the file todonotes.dtx   *}
 \Msg{* through LaTeX.                                            *}
