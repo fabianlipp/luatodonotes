@@ -81,6 +81,7 @@
 % \changes{0.2}{2015/02/28}{Correct height calculation for notes with modified
 % fontsize}
 % \changes{0.2}{2015/03/03}{Fix problems with recent versions of lualibs}
+% \changes{0.2}{2015/03/12}{Added troubleshooting section to documentation}
 % \GetFileInfo{luatodonotes.dtx}
 %
 % \DoNotIndex{\newcommand,\newenvironment}
@@ -666,6 +667,54 @@
 % \listoftodos[I can be called anything]
 % \end{verbatim}
 % 
+%
+% \subsection{Troubleshooting}
+% \subsubsection{Missing Lua files}
+% A potential error message when Lua source files are not found, is the
+% following:
+% \begin{verbatim}
+% ! LuaTeX error [\directlua]:1: module 'luatodonotes' not found:
+%         no field package.preload['luatodonotes']
+%         [luatexbase.loader] Search failed
+%         [kpse lua searcher] file not found: 'luatodonotes'
+%         [kpse C searcher] file not found: 'luatodonotes'
+%         [oberdiek.luatex.kpse_module_loader]-eroux Search failed
+% stack traceback:
+%         [C]: in function 'require'
+%         [\directlua]:1: in main chunk.
+% l.250 \directlua{require("luatodonotes")}
+% \end{verbatim}
+% This means that the file |luatodonotes.lua| cannot be found by Lua\TeX.
+% It depends on the version of your \TeX{} installation. in which directories
+% Lua\TeX{} is looking for Lua source files.
+% You can query these paths with the following command:
+% \begin{verbatim}
+% kpsewhich -show-path=lua\end{verbatim}
+% See the |kpathsea|
+% documentation\footnote{\url{http://tug.org/texinfohtml/kpathsea.html}} for
+% the interpretation of this path.
+% The Lua source files of the |luatodonotes| package should be in one of the
+% searched directories.
+% You can modify the path in your \TeX{} configuration or using environment
+% variables.
+% You can query kpathsea for a file using the default \TeX{} search path with:
+% \begin{verbatim}
+% kpsewhich luatodonotes.lua\end{verbatim}
+% Be sure to run |texhash| (as root if needed) after moving files inside the
+% texmf tree.
+%
+% \subsubsection{The \texttt{debug} option}
+% You can load the package with the option |debug| (see
+% Section~\ref{subsecPackageOptions}).
+% It gives some additional information in the console while running Lua\TeX{}
+% and draws additional information into the output document.
+% For example, the size of the computed areas, in which the labels are placed,
+% is shown in the document.
+% Depending on the chosen layout algorithm some intermediate steps of the
+% algorithms are given.
+%
+%
+%
 %
 %
 % \subsection{Known issues}
