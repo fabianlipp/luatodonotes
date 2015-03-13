@@ -107,7 +107,7 @@
 % to--do items can be listed with the |\listoftodos| command.
 %
 % It is an extended version of the |todonotes| package and uses more advanced
-% algorithms to place the to--do notes notes on the page.
+% algorithms to place the to--do notes on the page.
 % For this algorithms it depends on Lua\TeX.
 % \end{abstract}
 %
@@ -166,7 +166,22 @@
 % rely on tikz, which makes them require less ressoureces.
 %
 %
-% \subsection{Usage}
+%
+% \subsection{Using Lua\LaTeX}
+% It is quite easy to switch from |pdflatex| to |lualatex|.
+% You only have to load a few different packages.
+% A small guide can be found in the Lua\LaTeX{}
+% guide\footnote{\url{http://mirror.ctan.org/info/luatex/lualatex-doc/lualatex-doc.pdf}}.
+%
+% The Lua\TeX{} processor (the |lualatex| executable) should be included in all
+% modern \TeX{} distributions, so you do not need to install additional
+% software.
+% You simply have to run |lualatex| instead of |pdflatex| (or instead of
+% |latex|, |xelatex|).
+%
+%
+%
+% \subsection{Usage of luatodonotes}
 % The package is loaded with |\usepackage|\oarg{options}|{luatodonotes}|.
 % Valid options are described in Section~\ref{subsecPackageOptions}.
 % Note that |todonotes| must \emph{not} be loaded.
@@ -479,7 +494,7 @@
 %
 %
 %
-% \subsection{Options for the todo command}
+% \subsection{Options for the \texttt{todo} command}
 % \label{subsecTodoOptions}
 % There are several options that can be given to the |\todo|
 % command. All the options are described here and often I have
@@ -621,7 +636,7 @@
 % \todo[author=Xavier, inline]{Testing author option.}
 % \end{verbatim}
 %
-% \subsection{Options for the missingfigure command}
+% \subsection{Options for the \texttt{missingfigure} command}
 %
 % \DescribeMacro{figwidth}
 % The |figwidth=length| option sets the width of the figure inserted by the
@@ -660,7 +675,7 @@
 % \missingfigure[figheight=6cm]{Testing}
 %
 %
-% \subsection{Options for the listoftodos command}
+% \subsection{Options for the \texttt{listoftodos} command}
 % The |\listoftodos| command takes one optional argument, that
 % defines the name of the inserted list of todos.
 % \begin{verbatim}
