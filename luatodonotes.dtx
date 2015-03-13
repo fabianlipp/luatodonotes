@@ -152,7 +152,7 @@
 % page.
 % Additionally, we are able to place notes at almost every position on the
 % page, e.\,g., in floating environments or in footnotes.
-% As a disadvantage luatodonotes requires Lua\LaTeX for document processing, so
+% As a disadvantage luatodonotes requires Lua\LaTeX{} for document processing, so
 % a standard |pdflatex| won't work.
 % Depending on the chosen layout for the to--do notes the runtime can be much
 % higher than with todonotes.
@@ -462,7 +462,7 @@
 % for label placement.
 % If both margins are narrower, no labels are placed and an error message is
 % printed to the console output.
-% The default value of this option is |2.0cm|.
+% The default value of this option is |1.0cm|.
 %
 % \DescribeMacro{distanceNotesPageBorder}
 % The |distanceNotesPageBorder=length| option specifies the horizontal distance
@@ -919,7 +919,7 @@
 \newcommand{\@todonotes@interNoteSpace}{5pt}
 \newcommand{\@todonotes@noteInnerSep}{5pt}
 \newcommand{\@todonotes@routingAreaWidth}{0.4cm}
-\newcommand{\@todonotes@minNoteWidth}{2.0cm}
+\newcommand{\@todonotes@minNoteWidth}{1.0cm}
 \newcommand{\@todonotes@distanceNotesPageBorder}{0.5cm}
 \newcommand{\@todonotes@distanceNotesText}{0.2cm}
 \newcommand{\@todonotes@rasterHeight}{1cm}
