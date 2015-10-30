@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{825}
+% \CheckSum{829}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1251,13 +1251,18 @@
 %    \begin{macrocode}
 \newsavebox\@todonotes@notetextbox
 %    \end{macrocode}
-% The following dimensions are used to read |\baselineskip| and
-% |\f@size| from Lua.
+% The following dimensions are used to read |\baselineskip|,
+% |\normalbaselineskip| and |\f@size| from Lua.
+% We need |\normalbaselineskip| as |\baselineskip| is set to 0 inside
+% tabular cells.
 % Dimension |\@todonotes@currentsidemargin| is set to the left margin,
 % i.\,e., to the value of length |\oddsidemargin| or
 % |\evensidemargin| depending on the type page.
+% \changes{0.3}{2015/10/30}{Fix position of marker in table cells
+% (\texttt{\textbackslash baselineskip} is empty inside tables)}
 %    \begin{macrocode}
 \newdimen\@todonotes@baselineskip
+\newdimen\@todonotes@normalbaselineskip
 \newdimen\@todonotes@fontsize
 \newdimen\@todonotes@currentsidemargin
 %    \end{macrocode}
@@ -1680,6 +1685,7 @@
 % Update the dimensions to be accessed by Lua.
 %    \begin{macrocode}
     \@todonotes@baselineskip=\baselineskip%
+    \@todonotes@normalbaselineskip=\normalbaselineskip%
     \@todonotes@fontsize=\f@size pt%
 %    \end{macrocode}
 % Place a label at the site.

@@ -106,6 +106,7 @@ local notesForPage = luatodonotes.notesForPage
 --     otherwise left side is meant
 -- fontsize: fontsize used for paragraph in that the note was defined
 -- baselineskip: \baselineskip in the paragraph in that the note was defined
+-- normalbaselineskip: \normalbaselineskip in the paragraph in that the note was defined
 -- outputX, outputY: position on which the north west anchor of the note should
 --     be placed
 -- lineColor: color of line connecting note to text
@@ -321,6 +322,7 @@ function luatodonotes.addNoteToList(index, drawLeader, noteType)
     newNote.index = index
     newNote.textbox = node.copy_list(tex.box["@todonotes@notetextbox"])
     newNote.baselineskip = tex.dimen["@todonotes@baselineskip"]
+    newNote.normalbaselineskip = tex.dimen["@todonotes@normalbaselineskip"]
     newNote.fontsize = tex.dimen["@todonotes@fontsize"]
     newNote.lineColor = tex.toks["@todonotes@toks@currentlinecolor"]
     newNote.backgroundColor = tex.toks["@todonotes@toks@currentbackgroundcolor"]
@@ -520,7 +522,11 @@ function luatodonotes.printNotes()
     for _, v in pairs(notesForPage) do
         if v.noteType ~= "area" then
             v.inputX = v.origInputX + inputShiftX
-            v.inputY = v.origInputY - 1.3 * (v.baselineskip - v.fontsize)
+            local bls = v.baselineskip
+            if v.baselineskip == 0 then
+                bls = v.normalbaselineskip
+            end
+            v.inputY = v.origInputY - 1.3 * (bls - v.fontsize)
         else
             v.inputX = v.origInputX
             v.inputY = v.origInputY
@@ -570,6 +576,7 @@ function luatodonotes.printNotes()
                 print("rasterSlots:  " .. v.rasterSlots)
             end
             print("baselineskip: " .. outputWithPoints(v.baselineskip))
+            print("nbaselineskip:" .. outputWithPoints(v.normalbaselineskip))
             print("fontsize:     " .. outputWithPoints(v.fontsize))
             print("textbox:      " .. inspect(v.textbox))
             print("height:       " .. outputWithPoints(v:getHeight()))
