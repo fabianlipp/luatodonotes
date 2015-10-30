@@ -312,8 +312,8 @@ end
 -- valid values for noteType: nil/"" (for point in text), "area"
 function luatodonotes.addNoteToList(index, drawLeader, noteType)
     if next(notesForPage) ~= nil
-        and index == notesForPage[#notesForPage].index then
-        -- Index is the same as for the previous note.
+        and index <= notesForPage[#notesForPage].index then
+        -- Index is the same as for one of the previous note.
         -- This can happen when commands are read multiple times
         -- => don't add anything to list in this case
         return
