@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{829}
+% \CheckSum{830}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -894,13 +894,25 @@
 \usetikzlibrary{intersections}
 \usetikzlibrary{decorations.pathmorphing}
 \RequirePackage{luacode}
-\RequirePackage{luatex}
 \RequirePackage{atbegshi}
 \RequirePackage{xstring}
 \RequirePackage{zref-abspage}
 \RequirePackage{ifoddpage}
 \RequirePackage{soul}
 \RequirePackage{soulpos}
+%    \end{macrocode}
+% The package |luatex| must not be loaded in new TeX distributions as the
+% definition of |\newattribute| in it conflicts with newer versions of
+% Lua\LaTeX.
+% Older versions of |luatexbase| include the package |luatex| by themselves, for
+% newer versions the Lua\LaTeX kernel should include the commands that we need
+% (e.\,g., |\newattribute|).
+% \changes{0.3}{2015/11/12}{Remove package \texttt{luatex} for current
+% versions of Lua\LaTeX (as it caused problems)}
+%    \begin{macrocode}
+\@ifpackagelater{luatexbase}{2013/05/04}{}{
+    \RequirePackage{luatex}
+}
 %    \end{macrocode}
 % Some default values are set
 %    \begin{macrocode}
