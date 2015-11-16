@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{830}
+% \CheckSum{833}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1559,14 +1559,22 @@
     \newcommand{\missingfigure}[2][]{}
 \else % \if@todonotes@disabled
 %    \end{macrocode}
+% \begin{macro}{\listoftodos}
 % Define the |\listoftodos| command and define the 
 % appearance of the list of todos.
+% \changes{0.3}{2015/11/16}{\texttt{\textbackslash listoftodos} didn't work
+% with documentclass \texttt{llncs}}
 %    \begin{macrocode}
-\newcommand{\listoftodos}[1][\@todonotes@todolistname]
-    {\@ifundefined{chapter}{\section*{#1}}{\chapter*{#1}} \@starttoc{tdo}}
+\newcommand{\listoftodos}[1][\@todonotes@todolistname]{%
+    \begingroup%
+    \setcounter{tocdepth}{1}%
+    \@ifundefined{chapter}{\section*{#1}}{\chapter*{#1}} \@starttoc{tdo}%
+    \endgroup%
+}
 \newcommand{\l@todo}
     {\@dottedtocline{1}{0em}{2.3em}}
 %    \end{macrocode}
+% \end{macro}
 % Define styles used by the todo command.
 % Colors are set directly when placing the notes.
 %    \begin{macrocode}
