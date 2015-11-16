@@ -497,7 +497,7 @@ end
 
 local inputShiftX = string.todimen("-0.05cm") -- sensible value depends on shape of mark
 function luatodonotes.printNotes()
-    print("drawing labels for page " .. currentPage)
+    print("drawing notes for page " .. currentPage)
 
     -- seperate notes that should be placed on another page
     -- This can occur when note is in a paragraph which doesn't fit on the
@@ -507,10 +507,23 @@ function luatodonotes.printNotes()
     local k=1
     while k <= #notesForPage do
         local v = notesForPage[k]
-        if v.pageNr ~= currentPage then
+        if v.pageNr == 0 then
+            -- Notes without a page number occur when the zref label is not
+            -- defined correctly. This happens with notes in a
+            -- \caption-command, e.g.
+            -- In this case two version of the note are stored and we drop the
+            -- note that does not have a valid page number (the other note
+            -- seems to have one).
+            table.remove(notesForPage, k)
+            if todonotesDebug then
+                print("deleting note: " .. k .. " (" .. v.index .. ")")
+            end
+        elseif v.pageNr ~= currentPage then
             table.insert(notesForNextPage, v)
             table.remove(notesForPage, k)
-            print("moving " .. k)
+            if todonotesDebug then
+                print("moving note to next page: " .. k .. " (" .. v.index .. ")")
+            end
         else
             -- update index here (needed if a note was deleted before)
             v.indexOnPage = k
