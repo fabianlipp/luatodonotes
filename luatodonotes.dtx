@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{833}
+% \CheckSum{837}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1899,17 +1899,28 @@
 % This box does not work in the tikzpicture.
 %    \begin{macrocode}
         \directlua{luatodonotes.calcHeightsForNotes()}% has to be outside of tikzpicture
-        \begin{tikzpicture}[remember picture,overlay]
+%    \end{macrocode}
+% Some classes modify the page margins using |\voffset| and |\hoffset|.
+% Our |tikzpicture| would be aligned using this modified page origin.
+% So we overrule the offsets using a |raisebox| and a negative |hspace|.
+% \changes{0.3}{2015/11/30}{Consider defined values for \texttt{\textbackslash
+% voffset} and \texttt{\textbackslash hoffset} to place the notes in the right
+% position.}
+%    \begin{macrocode}
+        \raisebox{\voffset}{%
+            \hspace{-\hoffset}%
+            \begin{tikzpicture}[remember picture,overlay]
 %    \end{macrocode}
 % Reads the absolute coordinates of every note on the page and writes them to
 % the Lua objects.
 %    \begin{macrocode}
-            \directlua{luatodonotes.getInputCoordinatesForNotes()}
+                \directlua{luatodonotes.getInputCoordinatesForNotes()}
 %    \end{macrocode}
 % Runs the positioning algorithm and actually draws the notes and leaders.
 %    \begin{macrocode}
-            \directlua{luatodonotes.printNotes()}
-        \end{tikzpicture}%
+                \directlua{luatodonotes.printNotes()}
+            \end{tikzpicture}%
+        }%
 %    \end{macrocode}
 % Delete the drawn notes from the Lua lists and prepare for the next page.
 %    \begin{macrocode}
