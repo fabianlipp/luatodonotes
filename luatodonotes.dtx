@@ -86,6 +86,7 @@
 % multiple times (e.g., by tabularx)}
 % \changes{0.3}{2015/11/16}{Deal with notes without a page number (happens when
 % placed in \texttt{\textbackslash caption}, e.g.)}
+% \changes{0.3}{2015/11/30}{Remove two variables from Lua global namespace}
 % \GetFileInfo{luatodonotes.dtx}
 %
 % \DoNotIndex{\newcommand,\newenvironment}
@@ -1905,7 +1906,7 @@
 % So we overrule the offsets using a |raisebox| and a negative |hspace|.
 % \changes{0.3}{2015/11/30}{Consider defined values for \texttt{\textbackslash
 % voffset} and \texttt{\textbackslash hoffset} to place the notes in the right
-% position.}
+% position}
 %    \begin{macrocode}
         \raisebox{\voffset}{%
             \hspace{-\hoffset}%

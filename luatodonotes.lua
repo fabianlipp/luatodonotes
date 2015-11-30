@@ -91,6 +91,8 @@ end
 -- stores the notes for the current page
 luatodonotes.notesForPage = {}
 local notesForPage = luatodonotes.notesForPage
+luatodonotes.notesForNextPage = {}
+local notesForNextPage = luatodonotes.notesForNextPage
 -- Fields for each note:
 -- index: numbers notes in whole document
 -- indexOnPage: index of the note in the notesForPage array
@@ -503,7 +505,8 @@ function luatodonotes.printNotes()
     -- This can occur when note is in a paragraph which doesn't fit on the
     -- current page and is thus moved to the next one. But the \todo-command is
     -- still read before the shipout of the current page is done
-    notesForNextPage = {}
+    luatodonotes.notesForNextPage = {}
+    notesForNextPage = luatodonotes.notesForNextPage
     local k=1
     while k <= #notesForPage do
         local v = notesForPage[k]
@@ -1026,7 +1029,7 @@ local function checkCurveApproximation(curve1, curve2)
     local sectionsCurve2 = {}
 
     -- get line segments of the first curve
-    local numberOfSectionsCurve1 = numberOfCurvePartitions
+    local numberOfSectionsCurve1 = luatodonotes.numberOfCurvePartitions
     local temp1X, temp1Y = getPointOnCurve(0, curve1)
     local i = 1
     while i <= numberOfSectionsCurve1 do
@@ -1043,7 +1046,7 @@ local function checkCurveApproximation(curve1, curve2)
     end
 
     -- get line segments of the second curve
-    local numberOfSectionsCurve2 = numberOfCurvePartitions
+    local numberOfSectionsCurve2 = luatodonotes.numberOfCurvePartitions
     temp1X, temp1Y = getPointOnCurve(0, curve2)
     i = 1
     while i <= numberOfSectionsCurve2 do
@@ -1240,7 +1243,7 @@ local function drawSBezierLeaders()
         v.forceLimitInc = math.huge
     end
 
-    numberOfCurvePartitions = #notesForPage * 3
+    luatodonotes.numberOfCurvePartitions = #notesForPage * 3
 
     for _, v in pairs(notesForPage) do
         computeOptimalPosition(v)
