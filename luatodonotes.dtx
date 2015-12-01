@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{866}
+% \CheckSum{875}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -890,6 +890,28 @@
 % \end{itemize}
 %
 % \subsection{Dependencies and definitions}
+% Make sure that the classical |todonotes| package is not loaded as we redefine
+% its commands.
+% Additionally we pretend that |todonotes| 1.0.2 is already loaded.
+% So later attempts to load package |todonotes| are simply ignored.
+% Loading both packages in the same document would produce errors (like
+% ``Command already defined'').
+% \changes{0.3}{2015/12/01}{Ensure that package \texttt{todonotes} is not
+% loaded}
+%    \begin{macrocode}
+\@ifpackageloaded{todonotes}{
+  \PackageError{luatodonotes}{%
+    Conflicting packages todonotes and luatodonotes\MessageBreak
+    loaded. Aborting.}{%
+    The package luatodonotes was designed as a replacement for todonotes. So it
+    is not possible (and not reasonable) to include both of them in the same
+    document.%
+    If you want to use luatodonotes you should delete the todonotes
+    package from\MessageBreak
+    your preamble.\MessageBreak}
+}{}
+\expandafter\def\csname ver@todonotes.sty\endcsname{2014/07/14}
+%    \end{macrocode}
 % Check if Lua\TeX{} is used.
 % \changes{0.2}{2015/02/23}{Check if LuaTeX is used at begin of package}
 %    \begin{macrocode}
