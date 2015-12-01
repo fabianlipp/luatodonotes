@@ -2119,8 +2119,9 @@ local function splitNone()
     local rightSideSelected = false
     if labelArea.left == nil and labelArea.right == nil then
         error("Cannot place labels on any side of text (not enough space). " ..
-            "Consider using the minNoteWidth option of the package to " ..
-            "decrease the minimum width required")
+            "Consider using the additionalMargin option of the package to " ..
+            "extend the page margins " ..
+            "or minNoteWidth to decrease the minimum width required")
     elseif labelArea.left == nil then
         rightSideSelected = true
     elseif labelArea.right ~= nil and

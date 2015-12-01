@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{837}
+% \CheckSum{866}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -467,7 +467,7 @@
 % for label placement.
 % If both margins are narrower, no labels are placed and an error message is
 % printed to the console output.
-% The default value of this option is |1.0cm|.
+% The default value of this option is |2.0cm|.
 %
 % \DescribeMacro{distanceNotesPageBorder}
 % The |distanceNotesPageBorder=length| option specifies the horizontal distance
@@ -489,6 +489,20 @@
 % Decreasing this value can yield better results (i.\,e., smaller total leader
 % length), but strongly increases the runtime and memory consumption.
 % The default value of this option is |1cm|.
+%
+% \DescribeMacro{additionalMargin}
+% The |additionalMargin=length| option extends the page margins horizontally.
+% To achieve this the page width is increased.
+% The page is extended by the given length on both sides.
+% The layout of the page stays the same but the paper format is changed: the
+% height is left unmodified, but the width is increased by the doubled value of
+% the given length.
+% This option is useful if you have to adhere to a given layout, whose margins
+% are not wide enough to accomodate the notes.
+% You can safely use this option as the final layout of your document does not
+% change when disabling the |luatodonotes| package.
+% The default width of |2cm| for the additional margin is used when the option
+% is given without a length.
 %
 % \DescribeMacro{debug}
 % When the |debug| option is activated the package is more verbose on
@@ -720,7 +734,7 @@
 % You can query kpathsea for a file using the default \TeX{} search path with:
 % \begin{verbatim}
 % kpsewhich luatodonotes.lua\end{verbatim}
-% Be sure to run |texhash| (as root if needed) after moving files inside the
+% Be sure to run |texhash| (as root if needed) after moving files into the
 % texmf tree.
 %
 % \subsubsection{The \texttt{debug} option}
@@ -936,10 +950,11 @@
 \newcommand{\@todonotes@interNoteSpace}{5pt}
 \newcommand{\@todonotes@noteInnerSep}{5pt}
 \newcommand{\@todonotes@routingAreaWidth}{0.4cm}
-\newcommand{\@todonotes@minNoteWidth}{1.0cm}
+\newcommand{\@todonotes@minNoteWidth}{2.0cm}
 \newcommand{\@todonotes@distanceNotesPageBorder}{0.5cm}
 \newcommand{\@todonotes@distanceNotesText}{0.2cm}
 \newcommand{\@todonotes@rasterHeight}{1cm}
+\newcommand{\@todonotes@additionalMargin}{2cm}
 %    \end{macrocode}
 %    \begin{macrocode}
 \AtBeginDocument{
@@ -1203,6 +1218,15 @@
 \define@key{luatodonotes.sty}%
     {rasterHeight}{\renewcommand{\@todonotes@rasterHeight}{#1}}
 %    \end{macrocode}
+% Control whether the margin should be enlarged for the notes and its width.
+%    \begin{macrocode}
+\newif{\if@todonotes@additionalMarginEnabled}
+\@todonotes@additionalMarginEnabledfalse
+\define@key{luatodonotes.sty}%
+    {additionalMargin}[\@todonotes@additionalMargin]{%
+        \@todonotes@additionalMarginEnabledtrue
+        \renewcommand{\@todonotes@additionalMargin}{#1}}
+%    \end{macrocode}
 % This option is used to activate debug mode.
 % Luatex prints more verbose output to the commandline in this mode.
 % Furthermore, some of the algorithms also print debugging hints onto the
@@ -1240,6 +1264,23 @@
     \fi
 \fi
 %    \end{macrocode}
+% \begin{macro}{additionalMargin}
+% If the option |additionalMargin| is given, we enlarge the margins for the notes.
+% We simply increase the page size by the doubled value of |additionalMargin| and move the contents to the right using |\hoffset|.
+% \changes{0.3}{2015/12/01}{Introduce package option \texttt{additionalMargin}}
+%    \begin{macrocode}
+\if@todonotes@additionalMarginEnabled
+    \newlength{\@todonotes@modpaperwidth}
+    \AtBeginDocument{%
+        \setlength{\@todonotes@modpaperwidth}{\paperwidth}%
+        \addtolength{\@todonotes@modpaperwidth}{\@todonotes@additionalMargin}%
+        \addtolength{\@todonotes@modpaperwidth}{\@todonotes@additionalMargin}%
+        \pdfpagewidth=\@todonotes@modpaperwidth%
+        \addtolength{\hoffset}{\@todonotes@additionalMargin}%
+    }%
+\fi%
+%    \end{macrocode}
+% \end{macro}
 % \subsection{Initialisation of our Lua code}
 % In this part we define some of the variables used by Lua depending on the
 % package options and do some other initialisation tasks.
