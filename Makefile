@@ -20,7 +20,7 @@ DISTCLEAN := \
 	luatodonotes.pdf \
 	luatodonotes.zip
 
-default: luatodonotes.pdf luatodonotes.zip
+default: luatodonotes.pdf luatodonotes.tar.gz
 
 luatodonotes.pdf: luatodonotes.sty luatodonotes.dtx
 	lualatex luatodonotes.dtx
@@ -29,7 +29,7 @@ luatodonotes.pdf: luatodonotes.sty luatodonotes.dtx
 	lualatex luatodonotes.dtx
 	lualatex luatodonotes.dtx
 
-luatodonotes.zip: luatodonotes.pdf luatodonotes.dtx luatodonotes.ins
+luatodonotes.tar.gz: luatodonotes.pdf luatodonotes.dtx luatodonotes.ins
 	rm -rf luatodonotes
 	mkdir luatodonotes
 	cp luatodonotes.ins luatodonotes/luatodonotes.ins
@@ -42,7 +42,8 @@ luatodonotes.zip: luatodonotes.pdf luatodonotes.dtx luatodonotes.ins
 	cp README.md luatodonotes/README.md
 	chmod a+r -R luatodonotes
 	chmod a+x luatodonotes
-	zip -r luatodonotes.zip luatodonotes
+	ln -s README.md luatodonotes/README
+	tar -cf luatodonotes.tar.gz luatodonotes
 
 luatodonotes.sty: luatodonotes.ins luatodonotes.dtx
 	rm -f luatodonotes.sty
