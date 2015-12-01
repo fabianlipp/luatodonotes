@@ -1240,7 +1240,9 @@
 \define@key{luatodonotes.sty}%
     {rasterHeight}{\renewcommand{\@todonotes@rasterHeight}{#1}}
 %    \end{macrocode}
+% \begin{macro}{additionalMargin}
 % Control whether the margin should be enlarged for the notes and its width.
+% \changes{0.3}{2015/12/01}{Introduce package option \texttt{additionalMargin}}
 %    \begin{macrocode}
 \newif{\if@todonotes@additionalMarginEnabled}
 \@todonotes@additionalMarginEnabledfalse
@@ -1249,6 +1251,7 @@
         \@todonotes@additionalMarginEnabledtrue
         \renewcommand{\@todonotes@additionalMargin}{#1}}
 %    \end{macrocode}
+% \end{macro}
 % This option is used to activate debug mode.
 % Luatex prints more verbose output to the commandline in this mode.
 % Furthermore, some of the algorithms also print debugging hints onto the
@@ -1286,10 +1289,8 @@
     \fi
 \fi
 %    \end{macrocode}
-% \begin{macro}{additionalMargin}
 % If the option |additionalMargin| is given, we enlarge the margins for the notes.
 % We simply increase the page size by the doubled value of |additionalMargin| and move the contents to the right using |\hoffset|.
-% \changes{0.3}{2015/12/01}{Introduce package option \texttt{additionalMargin}}
 %    \begin{macrocode}
 \if@todonotes@additionalMarginEnabled
     \newlength{\@todonotes@modpaperwidth}
@@ -1302,7 +1303,6 @@
     }%
 \fi%
 %    \end{macrocode}
-% \end{macro}
 % \subsection{Initialisation of our Lua code}
 % In this part we define some of the variables used by Lua depending on the
 % package options and do some other initialisation tasks.
