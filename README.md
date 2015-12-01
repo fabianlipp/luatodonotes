@@ -17,8 +17,11 @@ files into your TEXMF tree.
 
 
 ## Development
-The latest source code is available on Github:  
+The latest source code is available on GitHub:  
 https://github.com/fabianlipp/luatodonotes
+
+If you want to report bugs or you have suggestions for improvements, you can
+use the issue tracker on GitHub or contact me via email.
 
 
 ## License
