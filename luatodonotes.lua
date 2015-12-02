@@ -499,7 +499,7 @@ end
 
 local inputShiftX = string.todimen("-0.05cm") -- sensible value depends on shape of mark
 function luatodonotes.printNotes()
-    print("drawing notes for page " .. currentPage)
+    print("Drawing notes for page " .. currentPage)
 
     -- seperate notes that should be placed on another page
     -- This can occur when note is in a paragraph which doesn't fit on the
@@ -1253,9 +1253,9 @@ local function drawSBezierLeaders()
     local proceed = true
     local loopCounter = 0
     while (proceed and loopCounter < maxIterations) do
-        --print("")
-        --print("--------------------------------------------------")
-        print("iteration " .. loopCounter .. ":")
+        if todonotesDebug then
+            print("Iteration " .. loopCounter)
+        end
 
         -- compute forces
         computeRepulsiveControlPointForces()
@@ -1273,10 +1273,9 @@ local function drawSBezierLeaders()
         loopCounter = loopCounter + 1
     end
 
-    print("")
-    print("End of Force-directed algo")
-    print("number of iterations: " .. loopCounter)
-    print("")
+    if todonotesDebug then
+        print("End of Force-directed algo, number of iterations: " .. loopCounter)
+    end
 
     -- draw
     for _, v in pairs(notesForPage) do
@@ -1587,7 +1586,6 @@ local function posSLeaderEast(notes, rightSide)
         -- build a array with all distinct heights of the notes
         -- first create a set and then convert to sorted array
         local heights = {}
-        print(#heights)
         for _, v in pairs(notes) do
             heights[notesForPage[v]:getHeight()] = true
         end
@@ -1597,7 +1595,9 @@ local function posSLeaderEast(notes, rightSide)
         local chosenIndex = -1
         local chosenH = -1
         for _, h in pairs(heights) do
-            print("testing height: " .. h) -- DEBUG
+            if todonotesDebug then
+                print("testing height: " .. h)
+            end
             leaderPosY = noteY - noteInnerSep - h/2
 
             -- find point with highest angle
@@ -1607,6 +1607,9 @@ local function posSLeaderEast(notes, rightSide)
             if notesForPage[notes[minIndex]]:getHeight() <= h then
                 chosenIndex = minIndex
                 chosenH = h
+                if todonotesDebug then
+                    print("placed note " .. notesForPage[notes[chosenIndex]].index)
+                end
                 break
             end
         end
@@ -1618,8 +1621,7 @@ local function posSLeaderEast(notes, rightSide)
         note.outputY = noteY - (chosenH - note:getHeight()) / 2
         -- no extraordinary free space below note (even if chosenH ~= note:getHeight())
         noteY = note.outputY - note:getHeight() - 2 * noteInnerSep - noteInterSpace
-        -- DEBUG
-        if chosenH ~= note:getHeight() then
+        if todonotesDebug and chosenH ~= note:getHeight() then
             print("Creating free space above note " .. note.index)
         end
 
@@ -1639,8 +1641,7 @@ local function posSLeaderEast(notes, rightSide)
             aimedPos = prevNote.outputY - prevNote:getHeight() - 2 * noteInnerSep - noteInterSpace
         end
 
-        -- DEBUG
-        if aimedPos ~= note.outputY then
+        if todonotesDebug and aimedPos ~= note.outputY then
             print("note " .. note.index .. " got moved:")
             print("aimed: " .. aimedPos)
             print("real:  " .. note.outputY)
@@ -1681,7 +1682,9 @@ local function posSLeaderEast(notes, rightSide)
                         minAngle = otherNoteAngle
                         minAngleIndex = otherInd
                     end
-                    print(otherNote.index .. " is in triangle for " .. note.index) -- DEBUG
+                    if todonotesDebug then
+                        print(otherNote.index .. " is in triangle for " .. note.index)
+                    end
                 end
             end
         end
@@ -1737,8 +1740,6 @@ local function getPosBelowLine(linePositionsCurPage, lineInd)
     return posBelow
 end
 local function posPoLeaders(notes, rightSide, avoidLines)
-    print("rasterHeight: " .. rasterHeight)
-
     local linePositionsCurPage
     if avoidLines then
         linePositionsCurPage = linePositions[currentPage] or {}
@@ -2048,29 +2049,24 @@ local function posPoLeaders(notes, rightSide, avoidLines)
             print("WARNING: could not fit all labels on page")
         end
 
-        print("Using result: opt[1][" .. #notes ..
-                              "][1][" .. totalNumSlots .. "][" .. maxPlaced .. "]")
         local res = opt[1][#notes][1][totalNumSlots][maxPlaced]
-        local length = res.totalLength
         local positions = res.positions
         local leaderShiftY = res.leaderShiftY
-
-        print("")
-        print("----------------")
-        print("resulting length: " .. length)
-        print("")
-        print("resulting positions:")
-        print(inspect(positions))
-        print("")
-        print("resulting leaderShifts:")
-        print(inspect(leaderShiftY))
-        print("")
-        print("")
-        print("")
-
-
-        -- DEBUG on page
         if todonotesDebug then
+            local length = res.totalLength
+            -- in console
+            print("----------------")
+            print("po-leader algorithm: Using result: opt[1][" .. #notes ..
+                                  "][1][" .. totalNumSlots .. "][" .. maxPlaced .. "]")
+
+            print("resulting length: " .. length)
+            print("resulting positions:")
+            print(inspect(positions))
+            print("resulting leaderShifts:")
+            print(inspect(leaderShiftY))
+            print("----------------")
+
+            -- on page
             tex.print("\\node[text=blue,fill=white,rectangle,align=center] at (10.5cm,-27cm) {" ..
                 "total length: " .. number.tocentimeters(length, "%s%s") .. "\\\\ " ..
                 "rasterHeight: " .. number.tocentimeters(rasterHeight, "%s%s") ..
