@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{894}
+% \CheckSum{902}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -364,6 +364,8 @@
 % The |positioning=algorithm| option specifies, which algorithm is used to
 % determine the positions of the notes on the page.
 % You should choose the algorithm depending on the leader type you want to use.
+% You can also use one of the options |s|, |po|, |bezier|, or |opo| to define
+% the positioning algorithm together with the leadertype.
 % The default value for this option is |inputOrderStacks|.
 % The following algorithms are available:
 % \begin{itemize}
@@ -406,6 +408,22 @@
 %    This algorithm depends heavily on advanced Lua\TeX\ features to manipulate
 %    the data structures of the page, so it possibly could give conflicts with
 %    other packages.
+% \end{itemize}
+%
+% \DescribeMacro{s}
+% \DescribeMacro{bezier}
+% \DescribeMacro{opo}
+% \DescribeMacro{po}
+% Shorthand options for convenience, which represent common combinations of
+% leadertypes and postioning algorithms.
+% |leadertype| or |positioning| options following one of these options override
+% its settings.
+% They use the following positioning algorithms:
+% \begin{itemize}
+%    \item |s|: |sLeaderNorthEastBelowStacks|
+%    \item |bezier|: |sLeaderNorthEastBelowStacks|
+%    \item |opo|: |inputOrderStacks|
+%    \item |po|: |poLeadersAvoidLines|
 % \end{itemize}
 %
 % \DescribeMacro{splitting}
@@ -1214,6 +1232,21 @@
 \define@key{luatodonotes.sty}%
     {figcolor}{\renewcommand{\@todonotes@figcolor}{#1}}
 %    \end{macrocode}
+% \begin{macro}{s,bezier,opo,po}
+% Provide shorthand options for the most common leader styles.
+% \changes{0.3}{2015/12/03}{Provide shorthand commands for most common leader
+% styles}
+%    \begin{macrocode}
+\DeclareOptionX{po}%
+    {\setkeys{luatodonotes.sty}{leadertype=po,positioning=poLeadersAvoidLines}}
+\DeclareOptionX{s}%
+    {\setkeys{luatodonotes.sty}{leadertype=s,positioning=sLeaderNorthEastBelowStacks}}
+\DeclareOptionX{bezier}%
+    {\setkeys{luatodonotes.sty}{leadertype=sBezier,positioning=sLeaderNorthEastBelowStacks}}
+\DeclareOptionX{opo}%
+    {\setkeys{luatodonotes.sty}{leadertype=opo,positioning=inputOrderStacks}}
+%    \end{macrocode}
+% \end{macro}
 % Specify the name of the algorithm used to specify the position of the labels.
 %    \begin{macrocode}
 \define@key{luatodonotes.sty}%
