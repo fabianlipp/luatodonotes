@@ -30,7 +30,8 @@
 %<*driver>
 \documentclass{ltxdoc}
 \usepackage{wrapfig}
-\usepackage[colorlinks, linkcolor=black, urlcolor=blue]{hyperref}
+\PassOptionsToPackage{colorlinks, urlcolor=blue}{hyperref}
+\usepackage{hypdoc} % this package loads hyperref among others
 \usepackage[colorinlistoftodos, shadow]{luatodonotes}[2015/03/13]
 \usepackage{fontspec}
 \usepackage{amsmath}
