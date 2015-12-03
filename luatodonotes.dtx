@@ -70,24 +70,10 @@
 %
 %
 % \changes{0.1}{2014/08/07}{The first version of the package}
-% \changes{0.2}{2014/09/08}{Compatibility with csquotes package (notes were
-% displayed multiple times when used in \texttt{\textbackslash blockquote}
-% command)}
 % \changes{0.2}{2015/01/13}{Fix wrong linespacing when changing fontsize}
 % \changes{0.2}{2015/01/13}{Included suggestions from CTAN submission into
 % documentation}
-% \changes{0.2}{2015/02/28}{Make Lua variables and functions local or put them
-% into luatodonotes array (don't pollute global namespace)}
-% \changes{0.2}{2015/02/28}{Correct height calculation for notes with modified
-% fontsize}
-% \changes{0.2}{2015/03/03}{Fix problems with recent versions of lualibs}
 % \changes{0.2}{2015/03/12}{Added troubleshooting section to documentation}
-% \changes{0.3}{2015/10/30}{Fix problems with doubled notes when code is read
-% multiple times (e.g., by tabularx)}
-% \changes{0.3}{2015/11/16}{Deal with notes without a page number (happens when
-% placed in \texttt{\textbackslash caption}, e.g.)}
-% \changes{0.3}{2015/11/30}{Remove two variables from Lua global namespace}
-% \changes{0.3}{2015/12/02}{Less console output unless debug option is set}
 % \changes{0.3}{2015/12/03}{Incorporated some changes from todonotes (version
 % 1.0.4)}
 % \GetFileInfo{luatodonotes.dtx}
@@ -885,6 +871,7 @@
 %
 % \newpage
 % \section{Implementation}
+% \begin{environment}{luatodonotes.lua}
 % In this section only the source code of the LaTeX package file
 % (|luatodonotes.sty|) is shown.
 % The Lua code is contained in |luatodonotes.lua| and documented by comments
@@ -903,6 +890,21 @@
 %     Master thesis, 2014.
 %     \url{http://www1.pub.informatik.uni-wuerzburg.de/pub/theses/2014-lipp-master.pdf}
 % \end{itemize}
+% \changes{0.2}{2014/09/08}{Compatibility with csquotes package (notes were
+% displayed multiple times when used in \texttt{\textbackslash blockquote}
+% command)}
+% \changes{0.2}{2015/02/28}{Correct height calculation for notes with modified
+% fontsize}
+% \changes{0.2}{2015/02/28}{Make Lua variables and functions local or put them
+% into luatodonotes array (don't pollute global namespace)}
+% \changes{0.2}{2015/03/03}{Fix problems with recent versions of lualibs}
+% \changes{0.3}{2015/10/30}{Fix problems with doubled notes when code is read
+% multiple times (e.g., by tabularx)}
+% \changes{0.3}{2015/11/16}{Deal with notes without a page number (happens when
+% placed in \texttt{\textbackslash caption}, e.g.)}
+% \changes{0.3}{2015/11/30}{Remove two variables from Lua global namespace}
+% \changes{0.3}{2015/12/02}{Less console output unless debug option is set}
+% \end{environment}
 %
 % \subsection{Dependencies and definitions}
 % Make sure that the classical |todonotes| package is not loaded as we redefine
