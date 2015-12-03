@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{875}
+% \CheckSum{894}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -88,6 +88,8 @@
 % placed in \texttt{\textbackslash caption}, e.g.)}
 % \changes{0.3}{2015/11/30}{Remove two variables from Lua global namespace}
 % \changes{0.3}{2015/12/02}{Less console output unless debug option is set}
+% \changes{0.3}{2015/12/03}{Incorporated some changes from todonotes (version
+% 1.0.4)}
 % \GetFileInfo{luatodonotes.dtx}
 %
 % \DoNotIndex{\newcommand,\newenvironment}
@@ -270,13 +272,14 @@
 %
 % \DescribeMacro{danish, german, ngerman, french, swedish}
 % \DescribeMacro{spanish, catalan, italian}
-% \DescribeMacro{portuguese, dutch}
+% \DescribeMacro{portuguese, dutch, croatian}
 % Use translations of the text strings 
 % ''List of todos'' and ''Missing figure''.
 % The default is to use none of these options, which results in
 % english text strings.
 % Currently the following languages are supported: 
 % catalan,
+% croatian,
 % danish,
 % dutch,
 % french,
@@ -333,7 +336,7 @@
 % The |figwidth=length| option and |figheight=length| option set the default
 % width and height of the figure
 % inserted by the |\missingfigure| command. 
-% The default value is |\columnwidth| for the width and |4cm| for the height.
+% The default value is |\linewidth| for the width and |4cm| for the height.
 %
 % \DescribeMacro{leaderwidth}
 % The |leaderwidth=length| option specifies the width of the leader lines.
@@ -695,6 +698,17 @@
 % \missingfigure[figheight=6cm]{Testing}
 %
 %
+% \DescribeMacro{figcolor}
+% The |figcolor=color| options sets the background color of
+% inserted missing figures.
+% The default color is |black!40|.
+% \begin{verbatim}
+% \missingfigure[figcolor=white]{Testing figcolor}
+% \end{verbatim}
+% \missingfigure[figcolor=white]{Testing figcolor}
+%
+%
+%
 % \subsection{Options for the \texttt{listoftodos} command}
 % The |\listoftodos| command takes one optional argument, that
 % defines the name of the inserted list of todos.
@@ -962,8 +976,9 @@
 \newcommand{\@todonotes@bordercolor}{black}
 \newcommand{\@todonotes@leaderwidth}{1.6pt}
 \newcommand{\@todonotes@textsize}{\normalsize}
-\newcommand{\@todonotes@figwidth}{\columnwidth}
+\newcommand{\@todonotes@figwidth}{\linewidth}
 \newcommand{\@todonotes@figheight}{4cm}
+\newcommand{\@todonotes@figcolor}{black!40}
 %    \end{macrocode}
 % Default values for variables added by luatodonotes
 %    \begin{macrocode}
@@ -1012,6 +1027,12 @@
     \@todonotes@SetMissingFigureText{Figura}%
     \@todonotes@SetMissingFigureUp{Figura}%
     \@todonotes@SetMissingFigureDown{pendent}%
+}
+\DeclareOptionX{croatian}{%
+   \@todonotes@SetTodoListName{Popis obveza}%
+   \@todonotes@SetMissingFigureText{Slika}%
+   \@todonotes@SetMissingFigureUp{Nedostaje}%
+   \@todonotes@SetMissingFigureDown{slika}%
 }
 \DeclareOptionX{danish}{%
     \@todonotes@SetTodoListName{G\o{}rem\aa{}lsliste}%
@@ -1188,6 +1209,8 @@
     {figwidth}{\renewcommand{\@todonotes@figwidth}{#1}}
 \define@key{luatodonotes.sty}%
     {figheight}{\renewcommand{\@todonotes@figheight}{#1}}
+\define@key{luatodonotes.sty}%
+    {figcolor}{\renewcommand{\@todonotes@figcolor}{#1}}
 %    \end{macrocode}
 % Specify the name of the algorithm used to specify the position of the labels.
 %    \begin{macrocode}
@@ -1583,6 +1606,9 @@
 \newcommand{\@todonotes@currentfigheight}{\@todonotes@figheight}
 \define@key{todonotes}%
     {figheight}{\renewcommand{\@todonotes@currentfigheight}{#1}}
+\newcommand{\@todonotes@currentfigcolor}{\@todonotes@figcolor}
+\define@key{todonotes}%
+    {figcolor}{\renewcommand{\@todonotes@currentfigcolor}{#1}}
 %    \end{macrocode}
 % Preset values of the options
 %    \begin{macrocode}
@@ -1598,6 +1624,7 @@
     noauthor,%
     figwidth=\@todonotes@figwidth,%
     figheight=\@todonotes@figheight,%
+    figcolor=\@todonotes@figcolor,%
     line, list, size=\@todonotes@textsize}{}%
 %    \end{macrocode}
 % \subsection{The main code part}
@@ -1878,7 +1905,7 @@
 \par
 \noindent
 \begin{tikzpicture}
-\draw[fill=black!40, draw = white, line width=0pt] 
+\draw[fill=\@todonotes@currentfigcolor, draw = black!40, line width=2pt]
     (-2, -2.5) rectangle +(\@todonotes@currentfigwidth, \@todonotes@currentfigheight);
 \draw (2, -0.3) node[right, text
     width=\@todonotes@currentfigwidth-4.5cm] {#2};
@@ -1886,9 +1913,9 @@
     (30:2cm) -- (150:2cm) -- (270:2cm) -- cycle;
 \draw (0, 0.3) node {\@todonotes@MissingFigureUp};
 \draw (0, -0.3) node {\@todonotes@MissingFigureDown};
-\end{tikzpicture}
+\end{tikzpicture}\hfill
 }% Ending \missingfigure command
-\fi % Ending \@todonotes@ifdisabled
+\fi% Ending \@todonotes@ifdisabled
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\todototoc}
