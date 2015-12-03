@@ -50,7 +50,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{902}
+% \CheckSum{905}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1693,12 +1693,15 @@
 % appearance of the list of todos.
 % \changes{0.3}{2015/11/16}{\texttt{\textbackslash listoftodos} didn't work
 % with documentclass \texttt{llncs}}
+% \changes{0.3}{2015/12/03}{Fix for \texttt{\textbackslash listoftodos} causing problems with
+% \texttt{hyperref}}
 %    \begin{macrocode}
+\newcounter{todonotes@oldtocdepth}
 \newcommand{\listoftodos}[1][\@todonotes@todolistname]{%
-    \begingroup%
+    \setcounter{todonotes@oldtocdepth}{\value{tocdepth}}%
     \setcounter{tocdepth}{1}%
     \@ifundefined{chapter}{\section*{#1}}{\chapter*{#1}} \@starttoc{tdo}%
-    \endgroup%
+    \setcounter{tocdepth}{\value{todonotes@oldtocdepth}}%
 }
 \newcommand{\l@todo}
     {\@dottedtocline{1}{0em}{2.3em}}
