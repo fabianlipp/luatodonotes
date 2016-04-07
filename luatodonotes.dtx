@@ -51,7 +51,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{905}
+% \CheckSum{906}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -975,6 +975,7 @@
 \RequirePackage{ifoddpage}
 \RequirePackage{soul}
 \RequirePackage{soulpos}
+\RequirePackage{etoolbox}
 %    \end{macrocode}
 % The package |luatex| must not be loaded in new TeX distributions as the
 % definition of |\newattribute| in it conflicts with newer versions of
@@ -1350,11 +1351,14 @@
 \fi
 %    \end{macrocode}
 % If the option |additionalMargin| is given, we enlarge the margins for the notes.
-% We simply increase the page size by the doubled value of |additionalMargin| and move the contents to the right using |\hoffset|.
+% We simply increase the page size by the doubled value of |additionalMargin|
+% and move the contents to the right using |\hoffset|.
+% \changes{0.4}{2016/04/01}{Fixed problems of the \texttt{additionalMargin}
+% option with certain documentclasses}
 %    \begin{macrocode}
 \if@todonotes@additionalMarginEnabled
     \newlength{\@todonotes@modpaperwidth}
-    \AtBeginDocument{%
+    \AfterEndPreamble{%
         \setlength{\@todonotes@modpaperwidth}{\paperwidth}%
         \addtolength{\@todonotes@modpaperwidth}{\@todonotes@additionalMargin}%
         \addtolength{\@todonotes@modpaperwidth}{\@todonotes@additionalMargin}%
