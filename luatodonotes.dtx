@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-% Copyright (C) 2014-2015 by Fabian Lipp <fabian.lipp@gmx.de>
+% Copyright (C) 2014-2017 by Fabian Lipp <fabian.lipp@gmx.de>
 % based on the todonotes package
 %   by Henrik Skov Midtiby <henrikmidtiby@gmail.com>
 % ------------------------------------------------------------
@@ -24,7 +24,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package>\ProvidesPackage{luatodonotes}
 %<*package>
-    [2015/12/03 v0.3 luatodonotes source and documentation.]
+    [2017/09/30 v0.4 luatodonotes source and documentation.]
 %</package>
 %
 %<*driver>
@@ -32,7 +32,7 @@
 \usepackage{wrapfig}
 \PassOptionsToPackage{colorlinks, urlcolor=blue}{hyperref}
 \usepackage{hypdoc} % this package loads hyperref among others
-\usepackage[colorinlistoftodos, shadow]{luatodonotes}[2015/12/03]
+\usepackage[colorinlistoftodos, shadow]{luatodonotes}[2017/09/30]
 \usepackage{fontspec}
 \usepackage{amsmath}
 \usepackage{setspace}
@@ -1314,6 +1314,8 @@
 % \begin{macro}{additionalMargin}
 % Control whether the margin should be enlarged for the notes and its width.
 % \changes{0.3}{2015/12/01}{Introduce package option \texttt{additionalMargin}}
+% \changes{0.4}{2016/04/01}{Fixed problems of the \texttt{additionalMargin}
+% option with certain documentclasses}
 %    \begin{macrocode}
 \newif{\if@todonotes@additionalMarginEnabled}
 \@todonotes@additionalMarginEnabledfalse
@@ -1363,8 +1365,6 @@
 % If the option |additionalMargin| is given, we enlarge the margins for the notes.
 % We simply increase the page size by the doubled value of |additionalMargin|
 % and move the contents to the right using |\hoffset|.
-% \changes{0.4}{2016/04/01}{Fixed problems of the \texttt{additionalMargin}
-% option with certain documentclasses}
 %    \begin{macrocode}
 \if@todonotes@additionalMarginEnabled
     \newlength{\@todonotes@modpaperwidth}
