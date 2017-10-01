@@ -42,7 +42,6 @@ luatodonotes.tar.gz: luatodonotes.pdf luatodonotes.dtx luatodonotes.ins
 	cp README.md luatodonotes/README.md
 	chmod a+r -R luatodonotes
 	chmod a+x luatodonotes
-	ln -s README.md luatodonotes/README
 	tar -cf luatodonotes.tar.gz luatodonotes
 
 luatodonotes.sty: luatodonotes.ins luatodonotes.dtx
