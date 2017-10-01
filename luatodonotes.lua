@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2014-2015 by Fabian Lipp <fabian.lipp@gmx.de>
+-- Copyright (C) 2014-2017 by Fabian Lipp <fabian.lipp@gmx.de>
 -- ------------------------------------------------------------
 -- 
 -- This file may be distributed and/or modified under the
