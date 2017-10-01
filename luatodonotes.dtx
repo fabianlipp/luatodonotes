@@ -77,6 +77,8 @@
 % \changes{0.2}{2015/03/12}{Added troubleshooting section to documentation}
 % \changes{0.3}{2015/12/03}{Incorporated some changes from todonotes (version
 % 1.0.4)}
+% \changes{0.4}{2017/10/01}{Incorporated some changes from todonotes (version
+% 1.0.5)}
 % \GetFileInfo{luatodonotes.dtx}
 %
 % \DoNotIndex{\newcommand,\newenvironment}
@@ -257,7 +259,7 @@
 % The option |obeyFinal| does something similar, except that the 
 % todonotes package is only disabled if the |final| option given.
 %
-% \DescribeMacro{danish, german, ngerman, french, swedish}
+% \DescribeMacro{danish, german, ngerman, english, french, swedish}
 % \DescribeMacro{spanish, catalan, italian}
 % \DescribeMacro{portuguese, dutch, croatian}
 % Use translations of the text strings 
@@ -269,6 +271,7 @@
 % croatian,
 % danish,
 % dutch,
+% english,
 % french,
 % german,
 % ngerman,
@@ -811,10 +814,17 @@
 % \subsubsection{Spacing around inserted notes}
 % Inserted todo commands will eat the white space after the command.
 % \begin{verbatim}
-%Testing\todo{Does this eat the space?} testing
-% \end{verbatim}
-% 
-% Testing\todo{Does this eat the space?}testing
+%Testing\todo{Does this eat the space?} testing.\end{verbatim}
+% \noindent
+% Testing\todo{Does this eat the space?} testing.
+%
+% This can be prevented by adding curly parenthesis after the
+% todo command, like shown below.
+% \begin{verbatim}
+%Testing\todo{Does this eat the space?}{} testing.\end{verbatim}
+% \noindent
+% Testing\todo{Does this eat the space?}{} testing.
+%
 %
 %
 % \subsubsection{Conflicts with the amsart documentclass}
@@ -1642,10 +1652,10 @@
 %    \begin{macrocode}
 \newcommand{\@todonotes@currentfigwidth}{\@todonotes@figwidth}
 \define@key{todonotes}%
-    {figwidth}{\renewcommand{\@todonotes@currentfigwidth}{#1}}
+    {figwidth}{\renewcommand{\@todonotes@currentfigwidth}{#1-2pt}}
 \newcommand{\@todonotes@currentfigheight}{\@todonotes@figheight}
 \define@key{todonotes}%
-    {figheight}{\renewcommand{\@todonotes@currentfigheight}{#1}}
+    {figheight}{\renewcommand{\@todonotes@currentfigheight}{#1-2pt}}
 \newcommand{\@todonotes@currentfigcolor}{\@todonotes@figcolor}
 \define@key{todonotes}%
     {figcolor}{\renewcommand{\@todonotes@currentfigcolor}{#1}}
