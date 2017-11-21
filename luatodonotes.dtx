@@ -1370,15 +1370,15 @@
     \newlength{\@todonotes@modpaperwidth}
     \AfterEndPreamble{%
         \@todonotes@setAdditionalMargin%
-    }%
 %    \end{macrocode}
 % Additionally, if the |geometry| package is loaded we hook into
 % |\Gm@changelayout| to repeat this computation whenever |\newgeometry| is
 % called.
 %    \begin{macrocode}
-    \ifdefined\Gm@changelayout
-        \g@addto@macro{\Gm@changelayout}{\@todonotes@setAdditionalMargin}
-    \fi
+        \ifdefined\Gm@changelayout
+            \g@addto@macro{\Gm@changelayout}{\@todonotes@setAdditionalMargin}
+        \fi
+    }%
 \fi%
 %    \end{macrocode}
 % We simply increase the page size by the doubled value of |additionalMargin|
