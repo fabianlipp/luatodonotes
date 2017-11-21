@@ -51,7 +51,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{906}
+% \CheckSum{915}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1316,6 +1316,8 @@
 % \changes{0.3}{2015/12/01}{Introduce package option \texttt{additionalMargin}}
 % \changes{0.4}{2016/04/01}{Fixed problems of the \texttt{additionalMargin}
 % option with certain documentclasses}
+% \changes{0.5}{2017/11/21}{Make \texttt{additionalMargin} compatible with
+% \texttt{\textbackslash newgeometry}}
 %    \begin{macrocode}
 \newif{\if@todonotes@additionalMarginEnabled}
 \@todonotes@additionalMarginEnabledfalse
@@ -1363,19 +1365,32 @@
 \fi
 %    \end{macrocode}
 % If the option |additionalMargin| is given, we enlarge the margins for the notes.
-% We simply increase the page size by the doubled value of |additionalMargin|
-% and move the contents to the right using |\hoffset|.
 %    \begin{macrocode}
 \if@todonotes@additionalMarginEnabled
     \newlength{\@todonotes@modpaperwidth}
     \AfterEndPreamble{%
-        \setlength{\@todonotes@modpaperwidth}{\paperwidth}%
-        \addtolength{\@todonotes@modpaperwidth}{\@todonotes@additionalMargin}%
-        \addtolength{\@todonotes@modpaperwidth}{\@todonotes@additionalMargin}%
-        \pdfpagewidth=\@todonotes@modpaperwidth%
-        \addtolength{\hoffset}{\@todonotes@additionalMargin}%
+        \@todonotes@setAdditionalMargin%
     }%
+%    \end{macrocode}
+% Additionally, if the |geometry| package is loaded we hook into
+% |\Gm@changelayout| to repeat this computation whenever |\newgeometry| is
+% called.
+%    \begin{macrocode}
+    \ifdefined\Gm@changelayout
+        \g@addto@macro{\Gm@changelayout}{\@todonotes@setAdditionalMargin}
+    \fi
 \fi%
+%    \end{macrocode}
+% We simply increase the page size by the doubled value of |additionalMargin|
+% and move the contents to the right using |\hoffset|.
+%    \begin{macrocode}
+\newcommand{\@todonotes@setAdditionalMargin}{
+    \setlength{\@todonotes@modpaperwidth}{\paperwidth}%
+    \addtolength{\@todonotes@modpaperwidth}{\@todonotes@additionalMargin}%
+    \addtolength{\@todonotes@modpaperwidth}{\@todonotes@additionalMargin}%
+    \pdfpagewidth=\@todonotes@modpaperwidth%
+    \addtolength{\hoffset}{\@todonotes@additionalMargin}%
+}
 %    \end{macrocode}
 % \subsection{Initialisation of our Lua code}
 % In this part we define some of the variables used by Lua depending on the
