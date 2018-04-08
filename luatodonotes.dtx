@@ -51,7 +51,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{915}
+% \CheckSum{937}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1508,6 +1508,18 @@
         {\AtBeginShipoutUpperLeft}
 \fi
 %    \end{macrocode}
+% Define commands that are used for every tikzpicture to disable
+% externalization.
+% We only call the |\tikzexternaldisable| command if it is defined (i.e., the
+% externalization library for TikZ is loaded).
+% Externalization is reenabled after the end of the group (if it was enabled
+% before).
+% \changes{0.5}{2018/04/08}{Disable TikZ externalization for our tikzpictures}
+%    \begin{macrocode}
+\newcommand{\@todonotes@before@tikzpict}{\begingroup%
+    \ifdefined\tikzexternaldisable\tikzexternaldisable\fi}
+\newcommand{\@todonotes@after@tikzpict}{\endgroup}
+%    \end{macrocode}
 % Initialise the script when all Lua variables are set according to the package
 % options.
 %    \begin{macrocode}
@@ -1547,6 +1559,7 @@
         {@todonotes@\arabic{@todonotes@numberoftodonotes}%
          @\arabic{@todonotes@numberofLinesInArea} }%
     \hspace*{\todonotes@textmark@shift}{\smash{%
+        \@todonotes@before@tikzpict%
         \begin{tikzpicture}[overlay,remember picture,
             deco/.style={}]%
             \setlength\todonotes@textmark@linebelow%
@@ -1575,7 +1588,8 @@
                     -- (\@todonotes@nodeNamePrefix areaSE)
                 }
                 -- cycle;
-         \end{tikzpicture}%
+        \end{tikzpicture}%
+        \@todonotes@after@tikzpict%
     }}%
 }%
 %    \end{macrocode}
@@ -1843,10 +1857,12 @@
 % Mark the end of the highlighted area with a Tikz coordinate.
 % The begin is marked by |\@todocommon|.
 %    \begin{macrocode}
+    \@todonotes@before@tikzpict%
     \begin{tikzpicture}[remember picture, overlay]%
         \node [coordinate] (@todonotes@\arabic{@todonotes@numberoftodonotes} %
             inTextEnd) {};%
     \end{tikzpicture}%
+    \@todonotes@after@tikzpict%
     \zref@label{@todonotes@\arabic{@todonotes@numberoftodonotes}@end}%
 }%
 %    \end{macrocode}
@@ -1861,10 +1877,12 @@
 % First is the current location in the document stored, this enables
 % us later to connect this point with the inserted todonote.
 %    \begin{macrocode}
+    \@todonotes@before@tikzpict%
     \begin{tikzpicture}[remember picture, overlay]%
         \node [coordinate] (@todonotes@\arabic{@todonotes@numberoftodonotes} %
             inText) {};%
     \end{tikzpicture}%
+    \@todonotes@after@tikzpict%
 %    \end{macrocode}
 % Update the dimensions to be accessed by Lua.
 %    \begin{macrocode}
@@ -1952,7 +1970,9 @@
 % Define helper function |drawInlineNote|.
 %    \begin{macrocode}
 \newcommand{\@todonotes@drawInlineNote}{%
-    {\par\noindent\begin{tikzpicture}[remember picture]%
+    {\par\noindent%
+        \@todonotes@before@tikzpict%
+        \begin{tikzpicture}[remember picture]%
         \draw node[@todonotes@inlinenote,font=\@todonotes@sizecommand]{%
             \if@todonotes@authorgiven%
                 {\noindent \@todonotes@sizecommand %
@@ -1960,7 +1980,9 @@
             \else%
                 {\noindent \@todonotes@sizecommand \@todonotes@text}%
             \fi};%
-        \end{tikzpicture}\par}%
+        \end{tikzpicture}%
+        \@todonotes@after@tikzpict%
+    \par}%
     }%
 %    \end{macrocode}
 % \end{macro}
@@ -1972,6 +1994,7 @@
 \addcontentsline{tdo}{todo}{\@todonotes@MissingFigureText: #2}%
 \par
 \noindent
+\@todonotes@before@tikzpict%
 \begin{tikzpicture}
 \draw[fill=\@todonotes@currentfigcolor, draw = black!40, line width=2pt]
     (-2, -2.5) rectangle +(\@todonotes@currentfigwidth, \@todonotes@currentfigheight);
@@ -1982,6 +2005,7 @@
 \draw (0, 0.3) node {\@todonotes@MissingFigureUp};
 \draw (0, -0.3) node {\@todonotes@MissingFigureDown};
 \end{tikzpicture}\hfill
+\@todonotes@after@tikzpict%
 }% Ending \missingfigure command
 \fi% Ending \@todonotes@ifdisabled
 %    \end{macrocode}
@@ -2069,6 +2093,7 @@
 %    \begin{macrocode}
         \raisebox{\voffset}{%
             \hspace{-\hoffset}%
+            \@todonotes@before@tikzpict%
             \begin{tikzpicture}[remember picture,overlay]
 %    \end{macrocode}
 % Reads the absolute coordinates of every note on the page and writes them to
@@ -2080,6 +2105,7 @@
 %    \begin{macrocode}
                 \directlua{luatodonotes.printNotes()}
             \end{tikzpicture}%
+            \@todonotes@after@tikzpict%
         }%
 %    \end{macrocode}
 % Delete the drawn notes from the Lua lists and prepare for the next page.
