@@ -51,7 +51,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{937}
+% \CheckSum{944}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1383,11 +1383,15 @@
 %    \end{macrocode}
 % We simply increase the page size by the doubled value of |additionalMargin|
 % and move the contents to the right using |\hoffset|.
+% \changes{0.5}{2020/01/19}{Adapt to new LuaTeX versions, which provide command
+% \texttt{\textbackslash pagewidth} instead of
+% \texttt{\textbackslash pdfpagewidth} (but stay backwards compatible).}
 %    \begin{macrocode}
 \newcommand{\@todonotes@setAdditionalMargin}{
     \setlength{\@todonotes@modpaperwidth}{\paperwidth}%
     \addtolength{\@todonotes@modpaperwidth}{\@todonotes@additionalMargin}%
     \addtolength{\@todonotes@modpaperwidth}{\@todonotes@additionalMargin}%
+    \ifdefined\pdfpagewidth\else\let\pdfpagewidth\pagewidth\fi
     \pdfpagewidth=\@todonotes@modpaperwidth%
     \addtolength{\hoffset}{\@todonotes@additionalMargin}%
 }
