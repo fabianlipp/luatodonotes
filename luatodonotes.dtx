@@ -1321,6 +1321,9 @@
 % option with certain documentclasses}
 % \changes{0.5}{2017/11/21}{Make \texttt{additionalMargin} compatible with
 % \texttt{\textbackslash newgeometry}}
+% \changes{0.5}{2020/01/19}{Adapt to new LuaTeX versions, which provide command
+% \texttt{\textbackslash pagewidth} instead of
+% \texttt{\textbackslash pdfpagewidth} (but stay backwards compatible)}
 %    \begin{macrocode}
 \newif{\if@todonotes@additionalMarginEnabled}
 \@todonotes@additionalMarginEnabledfalse
@@ -1386,9 +1389,6 @@
 %    \end{macrocode}
 % We simply increase the page size by the doubled value of |additionalMargin|
 % and move the contents to the right using |\hoffset|.
-% \changes{0.5}{2020/01/19}{Adapt to new LuaTeX versions, which provide command
-% \texttt{\textbackslash pagewidth} instead of
-% \texttt{\textbackslash pdfpagewidth} (but stay backwards compatible).}
 %    \begin{macrocode}
 \newcommand{\@todonotes@setAdditionalMargin}{
     \setlength{\@todonotes@modpaperwidth}{\paperwidth}%
