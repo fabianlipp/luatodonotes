@@ -936,6 +936,9 @@
 % \changes{0.5}{2020/01/19}{Fixed bugs when using \texttt{poLeadersAvoidLines}
 % as positioning algorithm in newer LuaTeX versions because some APIs have
 % changed}
+% \changes{0.5}{2020/01/20}{Bugfix: The line position calculation didn't use
+% the current page height, which caused an offset on these positions in
+% documents not using a4paper}
 % \end{environment}
 %
 % \subsection{Dependencies and definitions}

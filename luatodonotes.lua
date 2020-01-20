@@ -374,8 +374,7 @@ function luatodonotes.linePositionsNextPage()
 end
 
 function luatodonotes.linePositionsAddLine(ycoord, lineheight, linedepth)
-    local baseline = ycoord - tex.pageheight
-    linePositionsCurPage[#linePositionsCurPage + 1] = {baseline, baseline + lineheight, baseline - linedepth}
+    linePositionsCurPage[#linePositionsCurPage + 1] = {ycoord, lineheight, linedepth}
 end
 
 
@@ -1754,7 +1753,18 @@ end
 local function posPoLeaders(notes, rightSide, avoidLines)
     local linePositionsCurPage
     if avoidLines then
-        linePositionsCurPage = linePositions[currentPage] or {}
+        linePositionsCurPage = {}
+        -- use the current pageheight to convert coordinates:
+        -- savepos yields coordinates relativ to lower left corner of page,
+        -- while our tikzpicture is anchored at the upper left corner
+        for k, v in pairs(linePositions[currentPage] or {}) do
+            local baseline = v[1] - tex.pageheight
+            linePositionsCurPage[k] = {baseline, baseline + v[2], baseline - v[3]}
+            if todonotesDebug then
+                print("linePositionsAddLine, add: " .. v[1] .. ", pageheight: " .. tex.pageheight ..
+                    ", result: " .. baseline)
+            end
+        end
     end
 
     -- number of slots on the whole page
@@ -1771,11 +1781,16 @@ local function posPoLeaders(notes, rightSide, avoidLines)
     -- sort notes by inputY
     table.sort(notes, compareNoteIndInputYDesc)
 
-    -- draw slots
+    -- draw slots and line positions
     if todonotesDebug then
         for i = 1,totalNumSlots+1 do
             local pos = area.top - (i-1) * rasterHeight
-            tex.print("\\draw[blue,dashed] (0," .. pos .. "sp) -- +(21cm,0);") 
+            tex.print("\\draw[blue,dashed] (0," .. pos .. "sp) -- +(21cm,0);")
+        end
+        for ind, v in pairs(linePositionsCurPage) do
+            local pos = v[1]
+            tex.print("\\draw[red,dashed] (0," .. pos .. "sp) -- +(21cm,0);")
+            tex.print("\\node[red] at (1cm," .. pos .. "sp) {" .. ind .. "};")
         end
     end
 
