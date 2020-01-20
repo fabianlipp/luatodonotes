@@ -51,7 +51,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{944}
+% \CheckSum{951}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -933,6 +933,9 @@
 % placed in \texttt{\textbackslash caption}, e.g.)}
 % \changes{0.3}{2015/11/30}{Remove two variables from Lua global namespace}
 % \changes{0.3}{2015/12/02}{Less console output unless debug option is set}
+% \changes{0.5}{2020/01/19}{Fixed bugs when using \texttt{poLeadersAvoidLines}
+% as positioning algorithm in newer LuaTeX versions because some APIs have
+% changed}
 % \end{environment}
 %
 % \subsection{Dependencies and definitions}
@@ -1475,6 +1478,7 @@
 % We need this workaround because we cannot insert |\pdflastypos| directly into
 % the tokenlist in the Lua callback \texttt{callbackOutputLinePositions()}.
 %    \begin{macrocode}
+\ifdefined\pdflastypos\else\let\pdflastypos\lastypos\fi
 \def\@todonotes@pdflastypos{\the\pdflastypos}
 %    \end{macrocode}
 % The following commands are written to the temporary \texttt{lpo}-file.

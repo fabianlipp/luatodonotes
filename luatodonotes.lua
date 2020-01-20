@@ -741,7 +741,7 @@ function luatodonotes.callbackOutputLinePositions(head)
                 end
 
                 if foundGlyph then
-                    local w = node.new("whatsit", "write") -- 8/1
+                    local w = node.new("whatsit", "write")
                     w.stream = lpoFileStream
                     local tokenlist = {
                         {12,  92, 0}, -- \
@@ -770,19 +770,31 @@ function luatodonotes.callbackOutputLinePositions(head)
                         {12, 110, 0}, -- n
                         {12, 123, 0} -- {
                     }
-                    t = token.create("@todonotes@pdflastypos")
-                    tokenlist[#tokenlist + 1] = t
-                    tokenlist[#tokenlist + 1] = {12, 125, 0}
-                    tokenlist[#tokenlist + 1] = {12, 123, 0}
+                    local t = token.create("@todonotes@pdflastypos")
+                    -- the token handling changed with newer LuaTeX versions
+                    if tex.luatexversion > 81 then
+                        tokenlist[#tokenlist + 1] = {0, t.tok}
+                    else
+                        tokenlist[#tokenlist + 1] = t
+                    end
+                    tokenlist[#tokenlist + 1] = {12, 125, 0} -- }
+                    tokenlist[#tokenlist + 1] = {12, 123, 0} -- {
                     appendStrToTokenlist(tokenlist, tostring(head.height))
-                    tokenlist[#tokenlist + 1] = {12, 125, 0}
-                    tokenlist[#tokenlist + 1] = {12, 123, 0}
+                    tokenlist[#tokenlist + 1] = {12, 125, 0} -- }
+                    tokenlist[#tokenlist + 1] = {12, 123, 0} -- {
                     appendStrToTokenlist(tokenlist, tostring(head.depth))
-                    tokenlist[#tokenlist + 1] = {12, 125, 0}
+                    tokenlist[#tokenlist + 1] = {12, 125, 0} -- }
                     w.data = tokenlist
                     head.head = node.insert_before(head.head,head.head,w)
 
-                    local w = node.new("whatsit", "pdf_save_pos") -- 8/23
+                    -- the name of the whatsit node changed with newer LuaTeX versions
+                    local whatsitName
+                    if tex.luatexversion > 80 then
+                        whatsitName = "save_pos"
+                    else
+                        whatsitName = "pdf_save_pos"
+                    end
+                    local w = node.new("whatsit", whatsitName)
                     head.head = node.insert_before(head.head,head.head,w)
                 end
             end
@@ -1870,7 +1882,7 @@ local function posPoLeaders(notes, rightSide, avoidLines)
                                 if avoidLines then
                                     leaderArmR = labelTopR - noteInnerSep - r:getHeight() / 2 -- east anchor
 
-                                    -- find first line (from the top) which lower bound is below leaderArmR
+                                    -- find first line (from the top) whose lower bound is below leaderArmR
                                     local lineBelowInd
                                     for ind, v in pairs(linePositionsCurPage) do
                                         if v[3] <= leaderArmR then
