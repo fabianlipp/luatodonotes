@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2014-2020 by Fabian Lipp <fabian.lipp@gmx.de>
+-- Copyright (C) 2014-2025 by Fabian Lipp <fabian.lipp@gmx.de>
 -- ------------------------------------------------------------
 -- 
 -- This file may be distributed and/or modified under the
@@ -15,7 +15,7 @@
 
 require("lualibs")
 --require("debugger")()
-local inspect = require('inspect')
+local inspect = require('luatodonotes-inspect')
 
 local point = require'path_point'
 local pathLine = require'path_line'
