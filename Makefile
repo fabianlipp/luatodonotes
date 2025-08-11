@@ -38,11 +38,11 @@ luatodonotes.tar.gz: luatodonotes.pdf luatodonotes.dtx luatodonotes.ins
 	cp luatodonotes.lua luatodonotes/luatodonotes.lua
 	cp path_line.lua luatodonotes/path_line.lua
 	cp path_point.lua luatodonotes/path_point.lua
-	cp inspect.lua luatodonotes/inspect.lua
+	cp luatodonotes-inspect.lua luatodonotes/luatodonotes-inspect.lua
 	cp README.md luatodonotes/README.md
 	chmod a+r -R luatodonotes
 	chmod a+x luatodonotes
-	tar -cf luatodonotes.tar.gz luatodonotes
+	tar -czf luatodonotes.tar.gz luatodonotes
 
 luatodonotes.sty: luatodonotes.ins luatodonotes.dtx
 	rm -f luatodonotes.sty
